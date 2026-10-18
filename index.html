@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Tracker | Loading school configuration…</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .touch-target { min-height: 44px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-yellow-100 border border-yellow-300 text-2xl" aria-label="Yellow school bus">🚌</div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-slate-900">Bus Tracker</h1>
+                <p class="text-xs text-slate-500 font-medium">Loading school configuration…</p>
+            </div>
+        </div>
+        <div class="text-right hidden sm:block">
+            <div id="live-date" class="text-xs font-semibold text-slate-500 uppercase tracking-wider"></div>
+            <div id="live-clock" class="text-lg font-bold text-slate-700 tabular-nums"></div>
+        </div>
+    </div>
+</header>
+
+<div role="status" class="bg-amber-50 border-b border-amber-200 text-amber-900 text-sm font-semibold text-center px-4 py-3">Design preview only — not connected to school data. Do not use for attendance or bus check-ins.</div>
+<main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col space-y-6">
+    <div id="notification-toast" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl z-50">
+        <span id="toast-message" class="text-sm font-medium"></span>
+    </div>
+
+    <div class="flex bg-slate-200/80 p-1 rounded-xl max-w-2xl w-full border border-slate-300/50 shadow-inner">
+        <button id="tab-logging" class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 touch-target">Staff Logging Panel</button>
+        <button id="tab-review" class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold bg-white text-blue-600 shadow-sm touch-target">Principal Portal</button>
+        <button id="tab-reports"  class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 touch-target">Reports</button>
+    </div>
+
+    <section id="view-logging" class="hidden space-y-6">
+        <div id="staff-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl text-center space-y-5 my-8">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto text-blue-600">🔒</div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Staff Verification</h3>
+                <p class="text-xs text-slate-500 mt-1">Staff access will be enabled after the secure backend is connected.</p>
+            </div>
+            <div class="space-y-2">
+                <input type="password" id="staff-pin" placeholder="Enter Staff Password" class="w-full text-center border border-slate-300 rounded-xl py-3 px-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest font-mono" >
+                <p id="staff-auth-error" class="text-xs text-red-600 hidden font-medium">Incorrect staff credentials. Please try again.</p>
+            </div>
+            <button disabled title="Unavailable until secure backend connection is tested"  class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-md touch-target">Authorize & Enter Logging Panel</button>
+        </div>
+
+        <div id="staff-logging-content" class="hidden space-y-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Active Bus Check-In</h2>
+                <p class="text-sm text-slate-500 mt-0.5">Select a bus route below to log arrival records instantly.</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <input type="text" id="new-bus-number" placeholder="Add custom route #..." class="border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-40 touch-target font-medium">
+                <button disabled title="Unavailable until secure backend connection is tested"  class="bg-blue-600 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors shadow-sm touch-target">+ Add</button>
+            </div>
+        </div>
+        <div id="bus-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </section>
+
+    <section id="view-review" class="space-y-6">
+        <div id="principal-auth-wall" class="hidden bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl text-center space-y-5 my-8">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto text-blue-600">🔒</div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Administrator Verification</h3>
+                <p class="text-xs text-slate-500 mt-1">Administrator access will be enabled after the secure backend is connected.</p>
+            </div>
+            <div class="space-y-2">
+                <input type="password" id="admin-pin" placeholder="Enter Admin Password" class="w-full text-center border border-slate-300 rounded-xl py-3 px-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest font-mono">
+                <p id="auth-error" class="text-xs text-red-600 hidden font-medium">Incorrect administrative credentials. Please try again.</p>
+            </div>
+            <button disabled title="Unavailable until secure backend connection is tested"  class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-md touch-target">Authorize & Enter Panel</button>
+        </div>
+
+        <div id="principal-dashboard-content" class="space-y-6">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Submissions</div>
+                    <div id="kpi-total" class="text-2xl font-black text-slate-900 mt-1">—</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-amber-500 uppercase tracking-wider">Pending Buses</div>
+                    <div id="kpi-pending" class="text-2xl font-black text-amber-600 mt-1">—</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-emerald-500 uppercase tracking-wider">On-Time Arrivals</div>
+                    <div id="kpi-ontime" class="text-2xl font-black text-emerald-600 mt-1">—</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-blue-500 uppercase tracking-wider">Substituted Buses</div>
+                    <div id="kpi-subs" class="text-2xl font-black text-blue-600 mt-1">—</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-rose-500 uppercase tracking-wider">Flagged Incidents / Notes</div>
+                    <div id="kpi-notes" class="text-2xl font-black text-rose-600 mt-1">—</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Missing Check-Ins (Pending Fleet)</h3>
+                    <div id="missing-buses-list" class="flex flex-wrap gap-2 no-scrollbar max-h-36 overflow-y-auto"><span class="text-xs text-slate-500 italic">Waiting for Google Sheets connection</span></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-3">On-Time Arrivals (By configured cutoff)</h3>
+                    <div id="ontime-buses-list" class="flex flex-wrap gap-2 no-scrollbar max-h-36 overflow-y-auto"><span class="text-xs text-slate-500 italic">Waiting for Google Sheets connection</span></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-3">Late Arrivals (Logged After configured cutoff)</h3>
+                    <div id="late-buses-list" class="flex flex-wrap gap-2 no-scrollbar max-h-36 overflow-y-auto"><span class="text-xs text-slate-500 italic">Waiting for Google Sheets connection</span></div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-blue-200 shadow-sm">
+                <h3 class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-3">Substitute Buses</h3>
+                <div id="substitute-buses-list" class="flex flex-wrap gap-2 no-scrollbar max-h-36 overflow-y-auto"><span class="text-xs text-slate-500 italic">Waiting for Google Sheets connection</span></div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Submission Audit History Logs</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Historical Google Sheet records are retained permanently. Reset only starts a new app session.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button disabled title="Unavailable until secure backend connection is tested"  class="bg-slate-100 text-slate-700 font-semibold text-xs px-4 py-2.5 rounded-xl hover:bg-slate-200 transition-colors border border-slate-200 touch-target">Reset Today's View</button>
+                </div>
+            </div>
+
+            <div class="hidden bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm" aria-hidden="true">
+                <div class="overflow-x-auto no-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-4 font-semibold">Date</th>
+                                <th class="p-4 font-semibold">Logged At</th>
+                                <th class="p-4 font-semibold">Route ID</th>
+                                <th class="p-4 font-semibold">Assigned Fleet Bus</th>
+                                <th class="p-4 font-semibold">Substitution Bus</th>
+                                <th class="p-4 font-semibold">Recorded Arrival</th>
+                                <th class="p-4 font-semibold">Operational Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-table-body" class="divide-y divide-slate-100 text-sm font-medium text-slate-700"></tbody>
+                    </table>
+                </div>
+                <div id="table-empty-state" class="hidden text-center py-12 text-slate-400">
+                    <p class="text-sm font-semibold">No bus data has been submitted yet.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-reports" class="hidden space-y-6">
+        <div id="reports-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl text-center space-y-5 my-8">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto text-blue-600">📊</div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Reporting Access</h3>
+                <p class="text-xs text-slate-500 mt-1">Reports will be enabled after the secure backend is connected.</p>
+            </div>
+            <div class="space-y-2">
+                <input type="password" id="reports-pin" placeholder="Enter Admin Password" class="w-full text-center border border-slate-300 rounded-xl py-3 px-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest font-mono" >
+                <p id="reports-auth-error" class="text-xs text-red-600 hidden font-medium">Incorrect administrative credentials. Please try again.</p>
+            </div>
+            <button disabled title="Unavailable until secure backend connection is tested"  class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-md touch-target">Authorize & View Reports</button>
+        </div>
+
+        <div id="reports-dashboard-content" class="hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Instructional Impact Reporting</h2>
+                    <p class="text-sm text-slate-500 mt-0.5">configured cutoff on-time threshold · Delay/Closure dates excluded · Arrival Not Captured flagged separately.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="report-generated-at" class="text-xs text-slate-400 font-medium"></span>
+                    <button disabled title="Unavailable until secure backend connection is tested"  class="bg-blue-600 text-white font-semibold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm touch-target">Refresh Reports</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-end justify-between gap-4 mb-3">
+                    <div>
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider">School Year-to-Date Snapshot</h3>
+                        <p id="report-school-year-label" class="text-sm font-semibold text-slate-700 mt-1">Current School Year</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Arrival Records</div>
+                        <div id="report-ytd-records" class="text-2xl font-black text-slate-900 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-emerald-500 uppercase tracking-wider">On-Time Rate</div>
+                        <div id="report-ytd-ontime" class="text-2xl font-black text-emerald-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider">Average Arrival</div>
+                        <div id="report-ytd-average" class="text-2xl font-black text-blue-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-rose-500 uppercase tracking-wider">No-Capture Flags</div>
+                        <div id="report-ytd-exceptions" class="text-2xl font-black text-rose-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-amber-500 uppercase tracking-wider">High-Impact Events</div>
+                        <div id="report-ytd-highimpact" class="text-2xl font-black text-amber-600 mt-1">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-900">School Year-to-Date Potential Instructional Minutes Missed</h3>
+                            <p class="text-xs text-slate-500 mt-1">Per student, ranked by route. No-capture flags are not assigned minutes.</p>
+                        </div>
+                    </div>
+                    <div id="report-ytd-impact-bars" class="space-y-3"></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="mb-4">
+                        <h3 class="font-bold text-slate-900">School Year-to-Date On-Time Performance</h3>
+                        <p class="text-xs text-slate-500 mt-1">Percentage of captured arrivals arriving by configured cutoff.</p>
+                    </div>
+                    <div id="report-ytd-ontime-bars" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-3">
+                    <div>
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider">Selected Week</h3>
+                        <p id="report-week-label" class="text-sm font-semibold text-slate-700 mt-1"></p>
+                    </div>
+                    <div class="flex flex-wrap items-end gap-2">
+                        <div>
+                            <label for="report-week-picker" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Choose Any Date in Week</label>
+                            <input type="date" id="report-week-picker" class="border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 touch-target">
+                        </div>
+                        <button disabled title="Unavailable until secure backend connection is tested"  class="bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl hover:bg-slate-800 transition-colors touch-target">View Week</button>
+                        <button disabled title="Unavailable until secure backend connection is tested"  class="bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-xs px-3 py-2.5 rounded-xl hover:bg-slate-200 touch-target">← Previous</button>
+                        <button disabled title="Unavailable until secure backend connection is tested"  class="bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-xs px-3 py-2.5 rounded-xl hover:bg-slate-200 touch-target">Next →</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Arrivals Logged</div>
+                        <div id="report-week-records" class="text-2xl font-black text-slate-900 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-emerald-500 uppercase tracking-wider">On-Time Rate</div>
+                        <div id="report-week-ontime" class="text-2xl font-black text-emerald-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider">Average Arrival Time</div>
+                        <div id="report-week-average" class="text-2xl font-black text-blue-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-rose-500 uppercase tracking-wider">No-Capture Flags</div>
+                        <div id="report-week-exceptions" class="text-2xl font-black text-rose-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-amber-500 uppercase tracking-wider">High-Impact Events</div>
+                        <div id="report-week-highimpact" class="text-2xl font-black text-amber-600 mt-1">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="mb-4">
+                    <h3 class="font-bold text-slate-900">Selected Week: Potential Minutes Missed per Student</h3>
+                    <p class="text-xs text-slate-500 mt-1">Only captured arrivals are assigned instructional minutes.</p>
+                </div>
+                <div id="report-week-impact-bars" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                <div class="p-5 border-b border-slate-200">
+                    <h3 class="font-bold text-slate-900">Route-Level School Year-to-Date Detail</h3>
+                    <p class="text-xs text-slate-500 mt-1">Useful for identifying routes whose students may need additional academic support.</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3">Route</th>
+                                <th class="p-3">Avg Arrival</th>
+                                <th class="p-3">On-Time</th>
+                                <th class="p-3">Late Days</th>
+                                <th class="p-3">Avg Missed When Late</th>
+                                <th class="p-3">SYTD Min / Student</th>
+                                <th class="p-3">High Impact</th>
+                                <th class="p-3">No Capture</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-route-table" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-sm">
+                <h3 class="font-bold text-rose-700">Unresolved Arrival Not Captured — GPS Follow-Up</h3>
+                <p class="text-xs text-slate-500 mt-1 mb-4">These records do not receive an instructional-loss value until the actual arrival is verified.</p>
+                <div id="report-exception-list" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+"use strict";
+// Visual preview. No PINs, backend URLs, test route data, or operational writes.
+function switchTab(tab) {
+  for (const name of ["logging", "review", "reports"]) {
+    document.getElementById("view-" + name).classList.toggle("hidden", name !== tab);
+    const btn = document.getElementById("tab-" + name);
+    btn.className = name === tab
+      ? "flex-1 text-center py-2.5 rounded-lg text-sm font-semibold bg-white text-blue-600 shadow-sm touch-target"
+      : "flex-1 text-center py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 touch-target";
+  }
+}
+for (const tab of ["logging", "review", "reports"]) {
+  document.getElementById("tab-" + tab).addEventListener("click", () => switchTab(tab));
+}
+function updateClock() {
+  const now = new Date();
+  document.getElementById("live-date").textContent = now.toLocaleDateString("en-US", {weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  document.getElementById("live-clock").textContent = now.toLocaleTimeString("en-US", {hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+updateClock();
+setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
