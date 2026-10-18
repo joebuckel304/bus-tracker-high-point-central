@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bus Tracker | High Point Central High School</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+</script>
     <style>
         .touch-target { min-height: 44px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -62,7 +63,7 @@
                 <h2 class="text-xl font-bold text-slate-900">Active Bus Check-In</h2>
                 <p class="text-sm text-slate-500 mt-0.5">Select a bus route below to log arrival records instantly.</p>
             </div>
-            <span class="text-xs font-medium text-slate-500">Routes managed in Google Sheets</span>
+            <span class="text-xs font-medium text-slate-500">Routes managed in Settings → Fleet Management</span>
         </div>
         <div id="bus-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
@@ -192,11 +193,22 @@
                 <div id="calendar-items" class="space-y-2 text-sm text-slate-600"></div>
                 <form id="calendar-form" class="space-y-3 border-t pt-3">
                   <label class="block text-sm font-semibold">Date<input id="calendar-date" type="date" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
-                  <label class="block text-sm font-semibold">Schedule<select id="calendar-type" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"><option>School Closure</option><option>1-Hour Delay</option><option>2-Hour Delay</option><option>3-Hour Delay</option></select></label>
+                  <label class="block text-sm font-semibold">Schedule<select id="calendar-type" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"><option>School Closure</option><option>1-Hour Delay</option><option>2-Hour Delay</option><option>3-Hour Delay</option><option>Normal Day</option></select></label>
                   <label class="block text-sm font-semibold">Notes<input id="calendar-notes" maxlength="500" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
                   <button type="submit" class="bg-blue-600 text-white rounded-xl px-4 py-3 text-sm font-semibold touch-target">Save Schedule</button>
                 </form>
               </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-3"><div><h3 class="font-bold text-lg">Fleet Management</h3><p class="text-sm text-slate-500">Add, retire, reactivate, or replace routes without changing historical arrivals.</p></div><button type="button" onclick="HPC_loadFleet()" class="px-4 py-2 border rounded-xl text-sm font-semibold">Refresh Fleet</button></div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label class="text-sm font-semibold">Action<select id="hpc-fleet-action" onchange="HPC_fleetActionChanged()" class="mt-2 w-full border rounded-xl p-3"><option value="add">Add new route</option><option value="deactivate">Deactivate route</option><option value="reactivate">Reactivate route</option><option value="replace">Replace / renumber route</option></select></label>
+              <label class="text-sm font-semibold">Route ID<input id="hpc-fleet-id" list="hpc-fleet-options" placeholder="1100" class="mt-2 w-full border rounded-xl p-3"><datalist id="hpc-fleet-options"></datalist></label>
+              <label id="hpc-fleet-new-wrap" class="hidden text-sm font-semibold">New route ID<input id="hpc-fleet-new" placeholder="1150" class="mt-2 w-full border rounded-xl p-3"></label>
+            </div>
+            <p class="rounded-xl border border-amber-200 bg-amber-50 text-amber-900 p-3 text-sm"><strong>Historical reporting:</strong> Replacing a route starts a new report card for its new ID. The retired route retains its prior records.</p>
+            <button type="button" onclick="HPC_saveFleet()" class="bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold">Review &amp; Confirm Fleet Change</button>
+            <p id="hpc-fleet-msg" role="status" class="text-sm"></p><div id="hpc-fleet-list" class="text-sm text-slate-600">Open Settings to load fleet.</div>
+          </div>
           <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
             <h3 class="font-bold">Change Bus Tracker PIN</h3>
             <form id="settings-pin-form" class="space-y-3">
@@ -480,10 +492,10 @@ async function refreshCalendar(){if(!state.adminToken)return;try{
   if(!rows.length){el.innerHTML='<p class="text-sm text-slate-400">No special schedule dates entered.</p>';return;}
   rows.slice(0,30).forEach(r=>{const item=document.createElement('div');item.className='flex items-center justify-between border-b py-2 gap-2';item.innerHTML=`<span>${escapeHtml(r.date)} · ${escapeHtml(r.type)}${r.notes?' · '+escapeHtml(r.notes):''}</span><button class="text-red-600 text-xs font-bold px-2 py-2" type="button">Delete</button>`;item.querySelector('button').onclick=async()=>{if(!confirm('Remove '+r.date+' from the special schedule calendar?'))return;try{await api('calendarDelete',{token:state.adminToken,date:r.date});notify('Calendar date removed.');refreshCalendar();bootstrap();}catch(err){notify(err.message,true);}};el.appendChild(item);});
 }catch(err){notify(err.message,true);}}
-$('calendar-form').onsubmit=async e=>{e.preventDefault();try{await api('calendarSave',{token:state.adminToken,date:$('calendar-date').value,type:$('calendar-type').value,notes:$('calendar-notes').value});notify('Special schedule saved.');refreshCalendar();bootstrap();}catch(err){notify(err.message,true);}};
+$('calendar-form').onsubmit=async e=>{e.preventDefault();try{const date=$('calendar-date').value,type=$('calendar-type').value;if(type==='Normal Day'){const entries=await api('calendar',{token:state.adminToken});const rows=Array.isArray(entries)?entries:(entries.dates||[]);if(rows.some(r=>r.date===date)){await api('calendarDelete',{token:state.adminToken,date});}notify('Normal schedule restored for '+date+'.');}else{await api('calendarSave',{token:state.adminToken,date,type,notes:$('calendar-notes').value});notify('Special schedule saved.');}refreshCalendar();bootstrap();}catch(err){notify(err.message,true);}};
 async function loadSettings(){
  if(!state.adminToken)return;
- try{const d=await api('adminSettings',{token:state.adminToken});$('setting-ontime').value=d.onTime;$('setting-highimpact').value=d.highImpact;$('setting-exception').value=d.exceptionCheck;refreshCalendar();}
+ try{const d=await api('adminSettings',{token:state.adminToken});$('setting-ontime').value=d.onTime;$('setting-highimpact').value=d.highImpact;$('setting-exception').value=d.exceptionCheck;refreshCalendar();HPC_loadFleet();}
  catch(err){notify(err.message,true);}
 }
 $('settings-threshold-form').onsubmit=async e=>{
@@ -524,6 +536,42 @@ async function fetchReportData(showNotice=false){if(!state.adminToken)return not
 function refreshClock(){const now=new Date(),tz='America/New_York';$('live-date').textContent=new Intl.DateTimeFormat('en-US',{timeZone:tz,weekday:'short',month:'short',day:'numeric'}).format(now);$('live-clock').textContent=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit'}).format(now);}
 $('refresh-exceptions').onclick=refreshExceptions;$('refresh-calendar').onclick=refreshCalendar;
 $('report-week-picker').value=dateKey(state.week);refreshClock();setInterval(refreshClock,15000);bootstrap();
+
+// Northwest-style fleet management for High Point Central.
+function HPC_fleetActionChanged(){
+  $('hpc-fleet-new-wrap').classList.toggle('hidden',$('hpc-fleet-action').value!=='replace');
+}
+async function HPC_loadFleet(){
+  if(!state.adminToken)return;
+  const el=$('hpc-fleet-list');
+  try{
+    const data=await api('fleetList',{token:state.adminToken});
+    const rows=data.routes||[];
+    $('hpc-fleet-options').innerHTML=rows.map(r=>'<option value="'+escapeHtml(r.id)+'"></option>').join('');
+    el.innerHTML=rows.length?'<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">'+rows.map(r=>
+      '<div class="flex justify-between items-center gap-2 rounded-lg border p-3"><span class="font-semibold">'+escapeHtml(r.displayName||r.id)+'</span><span class="text-xs font-bold '+(r.active?'text-emerald-700':'text-slate-400')+'">'+(r.active?'Active':'Inactive')+'</span></div>'
+    ).join('')+'</div>':'No routes found.';
+  }catch(err){el.textContent=err.message;notify(err.message,true);}
+}
+async function HPC_saveFleet(){
+  const operation=$('hpc-fleet-action').value;
+  const routeId=$('hpc-fleet-id').value.trim().replace(/^Bus\s+/i,'');
+  const newRouteId=$('hpc-fleet-new').value.trim().replace(/^Bus\s+/i,'');
+  if(!routeId)return notify('Enter a route ID.',true);
+  if(operation==='replace'&&!newRouteId)return notify('Enter the replacement route ID.',true);
+  const description={add:'add route',deactivate:'deactivate route',reactivate:'reactivate route',replace:'replace route'}[operation];
+  if(!confirm('High Point Central: '+description+' '+routeId+(operation==='replace'?' with '+newRouteId:'')+'? Historical records will remain unchanged.'))return;
+  try{
+    const d=await api('fleetChange',{token:state.adminToken,operation,routeId,newRouteId});
+    state.config=d.bootstrap;
+    renderBusCards();updateThresholdLabels();
+    $('hpc-fleet-msg').textContent=d.message;
+    $('hpc-fleet-id').value='';$('hpc-fleet-new').value='';
+    await HPC_loadFleet();
+    notify('Fleet updated successfully.');
+    if(state.adminToken)refreshDashboard();
+  }catch(err){$('hpc-fleet-msg').textContent=err.message;notify(err.message,true);}
+}
 </script>
 </body>
 </html>
