@@ -187,16 +187,16 @@
             <button type="submit" class="bg-blue-600 text-white rounded-xl p-3 font-semibold md:col-span-3">Save School Thresholds</button>
           </form>
         </div>
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div class="space-y-6">
               <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <div class="flex items-center justify-between gap-3"><h3 class="font-bold text-slate-900">Delay / Closure Calendar</h3><button id="refresh-calendar" class="bg-blue-600 text-white rounded-xl px-4 py-2 text-xs font-semibold touch-target">Refresh</button></div>
-                <div id="calendar-items" class="space-y-2 text-sm text-slate-600"></div>
-                <form id="calendar-form" class="space-y-3 border-t pt-3">
+                <form id="calendar-form" class="space-y-3">
                   <label class="block text-sm font-semibold">Date<input id="calendar-date" type="date" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
                   <label class="block text-sm font-semibold">Schedule<select id="calendar-type" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"><option>School Closure</option><option>1-Hour Delay</option><option>2-Hour Delay</option><option>3-Hour Delay</option><option>Normal Day</option></select></label>
                   <label class="block text-sm font-semibold">Notes<input id="calendar-notes" maxlength="500" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
                   <button type="submit" class="bg-blue-600 text-white rounded-xl px-4 py-3 text-sm font-semibold touch-target">Save Schedule</button>
                 </form>
+                <div class="border-t border-slate-200 pt-4 space-y-3"><h4 class="font-semibold text-sm text-slate-900">Saved Schedule Changes</h4><div id="calendar-items" class="space-y-2 text-sm text-slate-600"></div></div>
               </div>
           <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
             <div class="flex items-center justify-between flex-wrap gap-3"><div><h3 class="font-bold text-lg">Fleet Management</h3><p class="text-sm text-slate-500">Add, retire, reactivate, or replace routes without changing historical arrivals.</p></div><button type="button" onclick="HPC_loadFleet()" class="px-4 py-2 border rounded-xl text-sm font-semibold">Refresh Fleet</button></div>
