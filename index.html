@@ -34,10 +34,11 @@
         <span id="toast-message" class="text-sm font-medium"></span>
     </div>
 
-    <div class="flex bg-slate-200/80 p-1 rounded-xl max-w-2xl w-full border border-slate-300/50 shadow-inner">
+    <div class="flex bg-slate-200/80 p-1 rounded-xl max-w-4xl w-full border border-slate-300/50 shadow-inner">
         <button id="tab-logging" onclick="switchTab('logging')" class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold bg-white text-blue-600 shadow-sm touch-target">Staff Logging Panel</button>
         <button id="tab-review" onclick="switchTab('review')" class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 touch-target">Principal Portal</button>
         <button id="tab-reports" onclick="switchTab('reports')" class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 touch-target">Reports</button>
+        <button id="tab-settings" onclick="switchTab('settings')" class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 touch-target">Settings</button>
     </div>
 
     <section id="view-logging" class="space-y-6">
@@ -55,17 +56,15 @@
         </div>
 
         <div id="staff-logging-content" class="hidden space-y-6">
+        <div id="day-status" class="rounded-xl border border-blue-200 bg-blue-50 text-blue-900 px-5 py-4 flex flex-wrap justify-between gap-2"><span class="font-bold">Today’s Schedule: Loading…</span><span class="text-sm" id="day-thresholds"></span></div>
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h2 class="text-xl font-bold text-slate-900">Active Bus Check-In</h2>
                 <p class="text-sm text-slate-500 mt-0.5">Select a bus route below to log arrival records instantly.</p>
             </div>
-            <div class="flex items-center space-x-2">
-                <input type="text" id="new-bus-number" placeholder="Add custom route #..." class="border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-40 touch-target font-medium">
-                <button onclick="addCustomBus()" class="bg-blue-600 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors shadow-sm touch-target">+ Add</button>
-            </div>
+            <span class="text-xs font-medium text-slate-500">Routes managed in Google Sheets</span>
         </div>
-        <div id="bus-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="bus-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
     </section>
 
@@ -137,21 +136,16 @@
                 </div>
             </div>
 
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+              <div class="flex justify-between items-center gap-3"><h3 class="font-bold text-slate-900">Today's Arrival Records · Edit</h3><button type="button" onclick="loadAdminArrivals()" class="text-blue-700 text-sm font-semibold">Refresh</button></div>
+              <div id="admin-arrivals" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm text-slate-600">Sign in to load today's records.</div>
+            </div>
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <div class="flex items-center justify-between gap-3"><h3 class="font-bold text-slate-900">Arrival Exceptions</h3><button id="refresh-exceptions" class="bg-blue-600 text-white rounded-xl px-4 py-2 text-xs font-semibold touch-target">Refresh</button></div>
                 <div id="exception-items" class="space-y-3 text-sm text-slate-600">Sign in to load exceptions.</div>
               </div>
-              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex items-center justify-between gap-3"><h3 class="font-bold text-slate-900">Delay / Closure Calendar</h3><button id="refresh-calendar" class="bg-blue-600 text-white rounded-xl px-4 py-2 text-xs font-semibold touch-target">Refresh</button></div>
-                <div id="calendar-items" class="space-y-2 text-sm text-slate-600"></div>
-                <form id="calendar-form" class="space-y-3 border-t pt-3">
-                  <label class="block text-sm font-semibold">Date<input id="calendar-date" type="date" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
-                  <label class="block text-sm font-semibold">Schedule<select id="calendar-type" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"><option>School Closure</option><option>1-Hour Delay</option><option>2-Hour Delay</option><option>3-Hour Delay</option></select></label>
-                  <label class="block text-sm font-semibold">Notes<input id="calendar-notes" maxlength="500" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
-                  <button type="submit" class="bg-blue-600 text-white rounded-xl px-4 py-3 text-sm font-semibold touch-target">Save Schedule</button>
-                </form>
-              </div>
+
             </div>
             <div class="hidden bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm" aria-hidden="true">
                 <div class="overflow-x-auto no-scrollbar">
@@ -175,6 +169,49 @@
                 </div>
             </div>
         </div>
+    </section>
+
+
+    <section id="view-settings" class="hidden space-y-6">
+      <div id="settings-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-sm text-center space-y-4">
+        <h2 class="text-lg font-bold">Administrator Settings</h2>
+        <p class="text-sm text-slate-500">Sign in through the Principal Portal to manage school settings.</p>
+        <button type="button" onclick="switchTab('review')" class="bg-slate-900 text-white rounded-xl px-5 py-3 font-semibold">Open Administrator Sign-In</button>
+      </div>
+      <div id="settings-content" class="hidden space-y-6">
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+          <div><h2 class="font-bold text-lg">Arrival & Reporting Thresholds</h2><p class="text-sm text-slate-500">Normal-day times. Delays automatically shift these thresholds.</p></div>
+          <form id="settings-threshold-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <label class="text-sm font-semibold">On-Time Cutoff<input type="time" id="setting-ontime" required class="mt-2 block w-full border border-slate-300 rounded-xl p-3"></label>
+            <label class="text-sm font-semibold">High-Impact Threshold<input type="time" id="setting-highimpact" required class="mt-2 block w-full border border-slate-300 rounded-xl p-3"></label>
+            <label class="text-sm font-semibold">Arrival Not Captured Check<input type="time" id="setting-exception" required class="mt-2 block w-full border border-slate-300 rounded-xl p-3"></label>
+            <button type="submit" class="bg-blue-600 text-white rounded-xl p-3 font-semibold md:col-span-3">Save School Thresholds</button>
+          </form>
+        </div>
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between gap-3"><h3 class="font-bold text-slate-900">Delay / Closure Calendar</h3><button id="refresh-calendar" class="bg-blue-600 text-white rounded-xl px-4 py-2 text-xs font-semibold touch-target">Refresh</button></div>
+                <div id="calendar-items" class="space-y-2 text-sm text-slate-600"></div>
+                <form id="calendar-form" class="space-y-3 border-t pt-3">
+                  <label class="block text-sm font-semibold">Date<input id="calendar-date" type="date" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+                  <label class="block text-sm font-semibold">Schedule<select id="calendar-type" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"><option>School Closure</option><option>1-Hour Delay</option><option>2-Hour Delay</option><option>3-Hour Delay</option></select></label>
+                  <label class="block text-sm font-semibold">Notes<input id="calendar-notes" maxlength="500" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+                  <button type="submit" class="bg-blue-600 text-white rounded-xl px-4 py-3 text-sm font-semibold touch-target">Save Schedule</button>
+                </form>
+              </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <h3 class="font-bold">Change Access PIN</h3>
+            <form id="settings-pin-form" class="space-y-3">
+              <label class="block text-sm font-semibold">PIN to Change<select id="pin-kind" class="mt-1 block w-full border border-slate-300 rounded-xl p-3"><option value="staff">Staff PIN</option><option value="admin">Administrator PIN</option></select></label>
+              <label class="block text-sm font-semibold">Current Administrator PIN<input id="pin-current" type="password" inputmode="numeric" autocomplete="off" required class="mt-1 block w-full border border-slate-300 rounded-xl p-3"></label>
+              <label class="block text-sm font-semibold">New PIN<input id="pin-new" type="password" inputmode="numeric" autocomplete="new-password" required minlength="4" maxlength="12" class="mt-1 block w-full border border-slate-300 rounded-xl p-3"></label>
+              <label class="block text-sm font-semibold">Confirm New PIN<input id="pin-confirm" type="password" inputmode="numeric" autocomplete="new-password" required minlength="4" maxlength="12" class="mt-1 block w-full border border-slate-300 rounded-xl p-3"></label>
+              <button type="submit" class="bg-slate-900 text-white rounded-xl p-3 font-semibold w-full">Update PIN</button>
+            </form>
+            <p class="text-xs text-slate-500">Changing the administrator PIN ends current administrator sessions. Never share PINs or place them in GitHub.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="view-reports" class="hidden space-y-6">
@@ -378,43 +415,51 @@ function updateThresholdLabels(){const s=state.config?.schedule;if(!s)return;
   document.querySelector('#report-ytd-ontime-bars').parentElement.querySelector('p').textContent='Percentage of captured arrivals meeting '+cut+'.';
 }
 function switchTab(tab){
-  ['logging','review','reports'].forEach(id=>{$('view-'+id).classList.toggle('hidden',id!==tab);
+  ['logging','review','reports','settings'].forEach(id=>{$('view-'+id).classList.toggle('hidden',id!==tab);
     const b=$('tab-'+id);b.classList.toggle('bg-white',id===tab);b.classList.toggle('text-blue-600',id===tab);b.classList.toggle('shadow-sm',id===tab);b.classList.toggle('text-slate-600',id!==tab);});
   if(tab==='reports'&&state.adminToken){$('reports-auth-wall').classList.add('hidden');$('reports-dashboard-content').classList.remove('hidden');if(!state.report)fetchReportData();}
-  if(tab==='review'&&state.adminToken)refreshDashboard();
+  if(tab==='review'&&state.adminToken){refreshDashboard();loadAdminArrivals();}
+  if(tab==='settings'){const allowed=Boolean(state.adminToken);$('settings-auth-wall').classList.toggle('hidden',allowed);$('settings-content').classList.toggle('hidden',!allowed);if(allowed)loadSettings();}
 }
-function nowLocalTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
-function timeDisplay(value){if(!value)return '—';const m=String(value).match(/^(\d{1,2}):(\d{2})/);if(!m)return String(value);const h=Number(m[1]);return (h%12||12)+':'+m[2]+' '+(h>=12?'PM':'AM');}
+function nowLocalTime(){return new Intl.DateTimeFormat('en-GB',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());}
+function timeDisplay(value){if(!value)return '—';const t=String(value).trim();if(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.test(t))return t;const m=t.match(/^(\d{1,2}):(\d{2})/);if(!m)return t;const h=Number(m[1]);return (h%12||12)+':'+m[2]+' '+(h>=12?'PM':'AM');}
 function recordFor(id){return state.arrivals.find(r=>String(r.routeId)===String(id));}
 function renderBusCards(){
   const container=$('bus-cards-container');container.innerHTML='';if(!state.config)return;
-  const closed=state.config.schedule.closed;
+  const s=state.config.schedule;
+  $('day-status').className='rounded-xl border px-5 py-4 flex flex-wrap justify-between gap-2 '+(s.closed?'border-rose-200 bg-rose-50 text-rose-800':s.delayMinutes?'border-amber-200 bg-amber-50 text-amber-900':'border-blue-200 bg-blue-50 text-blue-900');
+  $('day-status').querySelector('span').textContent='Today’s Schedule: '+(s.type==='Normal'?'Normal Day':s.type);
+  $('day-thresholds').textContent=s.closed?'School closed · No arrivals should be logged':'On time through '+s.onTimeCutoff+' · High impact from '+s.highImpactBegins;
   state.config.routes.forEach(route=>{
-    const done=recordFor(route.id);const form=document.createElement('form');form.className='bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-4';
-    form.innerHTML=`<div class="flex items-center justify-between gap-2"><div><h3 class="text-lg font-bold text-slate-900">${escapeHtml(route.displayName)}</h3><p class="text-xs text-slate-500">Assigned route ${escapeHtml(route.id)}</p></div><span class="text-xs font-bold px-3 py-1.5 rounded-full ${done?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">${done?'✓ Arrived':'Pending'}</span></div>
-    ${done?`<div class="bg-emerald-50 text-emerald-800 rounded-xl p-3 text-sm font-semibold">Recorded ${escapeHtml(done.arrivalTime||'today')}${done.substituteFleetUnit?' · Substitute '+escapeHtml(done.substituteFleetUnit):''}</div>`:''}
-    <label class="block text-xs font-bold text-slate-600 uppercase">Arrival Time<input name="arrivalTime" type="time" required class="block mt-2 w-full border border-slate-300 rounded-xl px-3 py-3 text-base"></label>
-    <button type="button" class="now w-full bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-sm py-2.5 rounded-xl touch-target">Use Current Time</button>
-    <label class="block text-xs font-bold text-slate-600 uppercase">Substitute Bus Number (Optional)<input name="substituteFleetUnit" maxlength="50" placeholder="Enter substitute bus number" class="block mt-2 w-full border border-slate-300 rounded-xl px-3 py-3 text-base font-normal normal-case"></label>
-    <label class="block text-xs font-bold text-slate-600 uppercase">Operational Notes (Optional)<textarea name="notes" maxlength="1000" rows="2" placeholder="Reason for delay or other details" class="block mt-2 w-full border border-slate-300 rounded-xl px-3 py-3 text-sm font-normal normal-case"></textarea></label>
-    <button type="submit" class="save w-full ${done?'bg-emerald-600':'bg-blue-600'} text-white font-bold rounded-xl py-3 touch-target">${done?'Already Logged':'Record Arrival'}</button>`;
-    form.querySelector('.now').onclick=()=>{form.elements.arrivalTime.value=nowLocalTime();};
-    const save=form.querySelector('.save');save.disabled=Boolean(done||closed);
+    const done=recordFor(route.id),form=document.createElement('form');
+    form.className='bg-white border border-slate-200 rounded-2xl shadow-sm p-4 space-y-3';
+    form.innerHTML=`<div class="flex items-center justify-between gap-3 pb-2 border-b border-slate-100"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-center text-xl">🚌</div><div><h3 class="text-lg font-extrabold text-slate-900">${escapeHtml(route.displayName)}</h3><p class="text-xs text-slate-500">Route ${escapeHtml(route.id)}</p></div></div><span class="text-xs font-bold px-3 py-1.5 rounded-full ${done?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">${done?'✓ Arrived':'Pending'}</span></div>
+    ${done?`<div class="bg-emerald-50 text-emerald-800 rounded-lg px-3 py-2 text-sm font-semibold">Recorded ${escapeHtml(timeDisplay(done.arrivalTime))}${done.substituteFleetUnit?' · Substitute '+escapeHtml(done.substituteFleetUnit):''}</div>`:''}
+    <label class="block text-xs font-bold text-slate-600 uppercase">Arrival Time<input name="arrivalTime" type="time" required class="block mt-1.5 w-full border border-slate-300 rounded-xl px-3 py-2.5 text-base"></label>
+    <button type="button" class="now w-full bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-sm py-2 rounded-xl touch-target">Use Current Time</button>
+    <label class="block text-xs font-bold text-slate-600 uppercase">Substitute Bus (Optional)<input name="substituteFleetUnit" maxlength="50" placeholder="Substitute fleet number" class="block mt-1.5 w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-normal normal-case"></label>
+    <label class="block text-xs font-bold text-slate-600 uppercase">Notes (Optional)<textarea name="notes" maxlength="1000" rows="2" placeholder="Delay reason or notes" class="block mt-1.5 w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-normal normal-case"></textarea></label>
+    <button type="submit" class="save w-full ${done?'bg-slate-900':'bg-blue-600'} text-white font-bold rounded-xl py-2.5 touch-target">${done?'Save Edited Arrival':'Record Arrival'}</button>`;
+    const fields=form.elements;
+    if(done){fields.arrivalTime.value=to24(done.arrivalTime);fields.substituteFleetUnit.value=done.substituteFleetUnit||'';fields.notes.value=done.notes||'';}
+    form.querySelector('.now').onclick=()=>{fields.arrivalTime.value=nowLocalTime();};
+    const save=form.querySelector('.save');save.disabled=Boolean(s.closed);
     form.onsubmit=async event=>{event.preventDefault();if(!state.staffToken)return notify('Please sign in again.',true);
+      if(done&&!confirm('Save changes to the existing arrival for '+route.displayName+'?'))return;
       save.disabled=true;save.textContent='Saving…';try{
-        const result=await api('submit',{token:state.staffToken,routeId:route.id,arrivalTime:form.elements.arrivalTime.value,substituteFleetUnit:form.elements.substituteFleetUnit.value,notes:form.elements.notes.value});
-        notify((result.routeName||route.displayName)+' saved at '+(result.arrivalTime||timeDisplay(form.elements.arrivalTime.value))+'.');await refreshStaff();
-      }catch(err){notify(err.message,true);save.disabled=false;save.textContent='Record Arrival';}};
+        const result=await api(done?'editArrival':'submit',{token:state.staffToken,role:'staff',routeId:route.id,arrivalTime:fields.arrivalTime.value,substituteFleetUnit:fields.substituteFleetUnit.value,notes:fields.notes.value});
+        notify((result.routeName||route.displayName)+' saved at '+(result.arrivalTime||timeDisplay(fields.arrivalTime.value))+'.');await refreshStaff();
+      }catch(err){notify(err.message,true);save.disabled=false;save.textContent=done?'Save Edited Arrival':'Record Arrival';}};
     container.appendChild(form);
   });
-  if(closed)notify('School is marked closed today; regular arrival submissions are disabled.');
 }
+function to24(value){const t=String(value||'').trim();const m=t.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);if(!m)return '';let h=Number(m[1]);if(m[3])h=h%12+(m[3].toUpperCase()==='PM'?12:0);return String(h).padStart(2,'0')+':'+m[2];}
 async function refreshStaff(){const d=await api('staffStatus',{token:state.staffToken});state.arrivals=d.arrivals||[];renderBusCards();}
 async function verifyStaffAccess(){const btn=document.querySelector('#staff-auth-wall button');btn.disabled=true;$('staff-auth-error').classList.add('hidden');
   try{const d=await api('staffLogin',{pin:$('staff-pin').value});state.staffToken=d.token;$('staff-pin').value='';$('staff-auth-wall').classList.add('hidden');$('staff-logging-content').classList.remove('hidden');await refreshStaff();notify('Staff access granted.');}
   catch(err){$('staff-auth-error').textContent=err.message;$('staff-auth-error').classList.remove('hidden');notify(err.message,true);}finally{btn.disabled=false;}}
 async function verifyAdminAccess(){const btn=document.querySelector('#principal-auth-wall button');btn.disabled=true;$('auth-error').classList.add('hidden');
-  try{const d=await api('adminLogin',{pin:$('admin-pin').value});state.adminToken=d.token;$('admin-pin').value='';$('principal-auth-wall').classList.add('hidden');$('principal-dashboard-content').classList.remove('hidden');$('reports-auth-wall').classList.add('hidden');$('reports-dashboard-content').classList.remove('hidden');notify('Administrator access granted.');await Promise.allSettled([refreshDashboard(),refreshExceptions(),refreshCalendar()]);}
+  try{const d=await api('adminLogin',{pin:$('admin-pin').value});state.adminToken=d.token;$('admin-pin').value='';$('principal-auth-wall').classList.add('hidden');$('principal-dashboard-content').classList.remove('hidden');$('reports-auth-wall').classList.add('hidden');$('reports-dashboard-content').classList.remove('hidden');notify('Administrator access granted.');await Promise.allSettled([refreshDashboard(),refreshExceptions(),loadAdminArrivals()]);}
   catch(err){$('auth-error').textContent=err.message;$('auth-error').classList.remove('hidden');notify(err.message,true);}finally{btn.disabled=false;}}
 function verifyReportsAccess(){if(state.adminToken){switchTab('reports');return;}const entered=$('reports-pin').value;$('admin-pin').value=entered;$('reports-pin').value='';switchTab('review');verifyAdminAccess().then(()=>{if(state.adminToken)switchTab('reports');});}
 function renderPills(id,rows,style){const el=$(id);el.innerHTML=rows?.length?rows.map(r=>`<span class="inline-block rounded-lg px-3 py-2 text-xs font-bold mr-2 mb-2 ${style}">${escapeHtml(r.routeName||r.displayName||r.routeId||r)}${r.arrivalTime?' · '+escapeHtml(r.arrivalTime):''}</span>`).join(''):'<span class="text-sm text-slate-400">None</span>';}
@@ -435,9 +480,42 @@ async function refreshExceptions(){if(!state.adminToken)return;try{
 async function refreshCalendar(){if(!state.adminToken)return;try{
   const d=await api('calendar',{token:state.adminToken});const rows=Array.isArray(d)?d:(d.dates||[]);const el=$('calendar-items');el.innerHTML='';
   if(!rows.length){el.innerHTML='<p class="text-sm text-slate-400">No special schedule dates entered.</p>';return;}
-  rows.slice(0,30).forEach(r=>{const item=document.createElement('div');item.className='flex items-center justify-between border-b py-2 gap-2';item.innerHTML=`<span>${escapeHtml(r.date)} · ${escapeHtml(r.type)}${r.notes?' · '+escapeHtml(r.notes):''}</span><button class="text-red-600 text-xs font-bold px-2 py-2" type="button">Delete</button>`;item.querySelector('button').onclick=async()=>{if(!confirm('Remove '+r.date+' from the special schedule calendar?'))return;try{await api('calendarDelete',{token:state.adminToken,date:r.date});notify('Calendar date removed.');refreshCalendar();}catch(err){notify(err.message,true);}};el.appendChild(item);});
+  rows.slice(0,30).forEach(r=>{const item=document.createElement('div');item.className='flex items-center justify-between border-b py-2 gap-2';item.innerHTML=`<span>${escapeHtml(r.date)} · ${escapeHtml(r.type)}${r.notes?' · '+escapeHtml(r.notes):''}</span><button class="text-red-600 text-xs font-bold px-2 py-2" type="button">Delete</button>`;item.querySelector('button').onclick=async()=>{if(!confirm('Remove '+r.date+' from the special schedule calendar?'))return;try{await api('calendarDelete',{token:state.adminToken,date:r.date});notify('Calendar date removed.');refreshCalendar();bootstrap();}catch(err){notify(err.message,true);}};el.appendChild(item);});
 }catch(err){notify(err.message,true);}}
-$('calendar-form').onsubmit=async e=>{e.preventDefault();try{await api('calendarSave',{token:state.adminToken,date:$('calendar-date').value,type:$('calendar-type').value,notes:$('calendar-notes').value});notify('Special schedule saved.');refreshCalendar();}catch(err){notify(err.message,true);}};
+$('calendar-form').onsubmit=async e=>{e.preventDefault();try{await api('calendarSave',{token:state.adminToken,date:$('calendar-date').value,type:$('calendar-type').value,notes:$('calendar-notes').value});notify('Special schedule saved.');refreshCalendar();bootstrap();}catch(err){notify(err.message,true);}};
+async function loadAdminArrivals(){
+ if(!state.adminToken)return;
+ const box=$('admin-arrivals');box.textContent='Loading arrivals…';
+ try{
+  const d=await api('dashboard',{token:state.adminToken});
+  const rows=[...(d.onTime||[]),...(d.late||[])];box.innerHTML='';
+  if(!rows.length){box.textContent='No recorded arrivals today.';return;}
+  rows.sort((a,b)=>String(a.routeId).localeCompare(String(b.routeId),undefined,{numeric:true}));
+  rows.forEach(r=>{
+   const f=document.createElement('form');f.className='rounded-xl border border-slate-200 p-3 space-y-2';
+   f.innerHTML=`<h4 class="font-bold">${escapeHtml(r.routeName||r.routeId)}</h4><label class="text-xs font-semibold block">Arrival Time<input name="arrivalTime" type="time" required class="mt-1 w-full rounded-lg border border-slate-300 p-2"></label><label class="text-xs font-semibold block">Substitute<input name="substituteFleetUnit" maxlength="50" class="mt-1 w-full rounded-lg border border-slate-300 p-2"></label><label class="text-xs font-semibold block">Notes<textarea name="notes" maxlength="1000" class="mt-1 w-full rounded-lg border border-slate-300 p-2"></textarea></label><button type="submit" class="w-full rounded-lg bg-slate-900 text-white font-semibold p-2">Save Edit</button>`;
+   f.elements.arrivalTime.value=to24(r.arrivalTime);f.elements.substituteFleetUnit.value=r.substituteFleetUnit||'';f.elements.notes.value=r.notes||'';
+   f.onsubmit=async e=>{e.preventDefault();if(!confirm('Update arrival for '+r.routeName+'?'))return;try{await api('editArrival',{token:state.adminToken,role:'admin',routeId:r.routeId,arrivalTime:f.elements.arrivalTime.value,substituteFleetUnit:f.elements.substituteFleetUnit.value,notes:f.elements.notes.value});notify('Arrival updated.');await Promise.all([refreshDashboard(),loadAdminArrivals()]);}catch(err){notify(err.message,true);}};
+   box.appendChild(f);
+  });
+ }catch(err){box.textContent='Could not load arrivals: '+err.message;}
+}
+async function loadSettings(){
+ if(!state.adminToken)return;
+ try{const d=await api('adminSettings',{token:state.adminToken});$('setting-ontime').value=d.onTime;$('setting-highimpact').value=d.highImpact;$('setting-exception').value=d.exceptionCheck;refreshCalendar();}
+ catch(err){notify(err.message,true);}
+}
+$('settings-threshold-form').onsubmit=async e=>{
+ e.preventDefault();if(!confirm('Update High Point Central school thresholds?'))return;
+ try{const d=await api('saveSettings',{token:state.adminToken,onTime:$('setting-ontime').value,highImpact:$('setting-highimpact').value,exceptionCheck:$('setting-exception').value});state.config=d.bootstrap;updateThresholdLabels();renderBusCards();notify('School thresholds updated.');await Promise.allSettled([refreshDashboard(),fetchReportData()]);}catch(err){notify(err.message,true);}
+};
+$('settings-pin-form').onsubmit=async e=>{
+ e.preventDefault();const kind=$('pin-kind').value,newPin=$('pin-new').value;
+ if(newPin!==$('pin-confirm').value)return notify('New PIN entries do not match.',true);
+ if(!confirm('Change the '+kind+' PIN?'))return;
+ try{const result=await api('changePin',{token:state.adminToken,kind,currentPin:$('pin-current').value,newPin});$('settings-pin-form').reset();notify('PIN updated.');if(result.reauthenticate){state.adminToken='';$('principal-auth-wall').classList.remove('hidden');$('principal-dashboard-content').classList.add('hidden');$('reports-auth-wall').classList.remove('hidden');$('reports-dashboard-content').classList.add('hidden');switchTab('review');notify('Administrator PIN updated. Sign in with your new PIN.');}}catch(err){notify(err.message,true);}
+};
+
 function dateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function parseDate(value){const m=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?new Date(+m[1],+m[2]-1,+m[3]):new Date();}
 function mondayFor(value){const d=parseDate(value);const dow=d.getDay();d.setDate(d.getDate()-(dow===0?6:dow-1));return d;}
@@ -462,7 +540,7 @@ function renderReportsDashboard(d){
   if(d.warning){setText('report-school-year-label',(d.schoolYearLabel||'School Year-to-Date')+' · Provisional');}
 }
 async function fetchReportData(showNotice=false){if(!state.adminToken)return notify('Administrator sign-in required.',true);try{const d=await api('report',{token:state.adminToken,date:dateKey(state.week)});renderReportsDashboard(d);if(showNotice)notify('Reports refreshed.');}catch(err){notify(err.message,true);}}
-function refreshClock(){const now=new Date();$('live-date').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});$('live-clock').textContent=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+function refreshClock(){const now=new Date(),tz='America/New_York';$('live-date').textContent=new Intl.DateTimeFormat('en-US',{timeZone:tz,weekday:'short',month:'short',day:'numeric'}).format(now);$('live-clock').textContent=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit'}).format(now);}
 $('refresh-exceptions').onclick=refreshExceptions;$('refresh-calendar').onclick=refreshCalendar;
 $('report-week-picker').value=dateKey(state.week);refreshClock();setInterval(refreshClock,15000);bootstrap();
 </script>
