@@ -1,47 +1,470 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bus Tracker | High Point Central High School</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>.touch{min-height:44px}.panel{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;padding:1.25rem;box-shadow:0 1px 3px #0f172a12}.field{width:100%;border:1px solid #cbd5e1;border-radius:.65rem;padding:.7rem;background:white}.btn{border-radius:.7rem;padding:.7rem 1rem;font-weight:700;min-height:44px;background:#1d4ed8;color:white}.btn:disabled{opacity:.5}.muted{color:#64748b}.pill{display:inline-block;padding:.35rem .6rem;border-radius:.65rem;background:#f1f5f9;font-size:.82rem;margin:.2rem}.hidden{display:none!important}</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Tracker | High Point Central High School</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .touch-target { min-height: 44px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen">
-<header class="bg-white border-b border-slate-200 shadow-sm"><div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="bg-yellow-100 border border-yellow-300 rounded-xl p-2 text-2xl">🚌</div><div><h1 class="text-lg font-bold">Bus Tracker</h1><p id="school" class="text-xs muted">High Point Central High School</p></div></div><div id="clock" class="text-sm font-bold"></div></div></header>
-<main class="max-w-7xl mx-auto p-4 md:p-7 space-y-5">
-<div class="flex bg-slate-200 rounded-xl p-1 max-w-2xl gap-1"><button data-tab="staff" class="tab flex-1 rounded-lg p-3 bg-white font-semibold text-sm">Staff Logging Panel</button><button data-tab="admin" class="tab flex-1 rounded-lg p-3 font-semibold text-sm">Principal Portal</button><button data-tab="reports" class="tab flex-1 rounded-lg p-3 font-semibold text-sm">Reports</button></div>
-<div id="notice" class="hidden panel" role="status" aria-live="polite"></div>
-<section id="staff" class="space-y-5"><div id="staff-login" class="panel max-w-md mx-auto text-center space-y-4"><div class="text-3xl">🔒</div><h2 class="font-bold text-lg">Staff Verification</h2><p class="muted text-sm">Enter the staff access PIN to log bus arrivals.</p><input id="staff-pin" type="password" class="field text-center" placeholder="Staff PIN" autocomplete="off"><button id="staff-auth" class="btn w-full">Authorize &amp; Enter Logging Panel</button></div><div id="staff-app" class="hidden space-y-5"><div class="panel"><h2 class="font-bold text-lg">Active Bus Check-In</h2><p id="schedule" class="muted text-sm mt-1"></p></div><div id="route-cards" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div></div></section>
-<section id="admin" class="hidden space-y-5"><div id="admin-login" class="panel max-w-md mx-auto text-center space-y-4"><div class="text-3xl">🔒</div><h2 class="font-bold text-lg">Administrator Verification</h2><p class="muted text-sm">Enter the administrator PIN.</p><input id="admin-pin" type="password" class="field text-center" placeholder="Administrator PIN" autocomplete="off"><button id="admin-auth" class="btn w-full">Authorize &amp; Enter Principal Portal</button></div><div id="admin-app" class="hidden space-y-5"><div class="flex flex-wrap justify-between gap-3"><h2 class="text-xl font-bold">Principal Dashboard</h2><button id="refresh-admin" class="btn">Refresh Dashboard</button></div><div id="metrics" class="grid grid-cols-2 lg:grid-cols-5 gap-3"></div><div class="grid lg:grid-cols-3 gap-4"><div class="panel"><h3 class="font-bold text-amber-700">Pending Buses</h3><div id="pending" class="mt-3"></div></div><div class="panel"><h3 class="font-bold text-emerald-700">On-Time Arrivals</h3><div id="ontime" class="mt-3"></div></div><div class="panel"><h3 class="font-bold text-rose-700">Late Arrivals</h3><div id="late" class="mt-3"></div></div></div><div class="panel"><h3 class="font-bold">Substitutes &amp; Flagged Notes</h3><div id="flagged" class="mt-3"></div></div><div class="grid lg:grid-cols-2 gap-4"><div class="panel space-y-3"><div class="flex justify-between items-center"><h3 class="font-bold">Arrival Exceptions</h3><button id="refresh-exceptions" class="btn">Refresh</button></div><div id="exceptions" class="space-y-3"></div></div><div class="panel space-y-3"><div class="flex justify-between items-center"><h3 class="font-bold">Delay &amp; Closure Calendar</h3><button id="refresh-calendar" class="btn">Refresh</button></div><div id="calendar" class="space-y-2"></div><form id="calendar-form" class="space-y-2"><label class="text-sm font-semibold">Date<input id="calendar-date" type="date" required class="field"></label><label class="text-sm font-semibold">Schedule<select id="calendar-type" class="field"><option>School Closure</option><option>1-Hour Delay</option><option>2-Hour Delay</option><option>3-Hour Delay</option></select></label><label class="text-sm font-semibold">Notes<input id="calendar-notes" class="field" maxlength="500"></label><button class="btn" type="submit">Save Schedule</button></form></div></div></div></section>
-<section id="reports" class="hidden space-y-5"><div id="reports-login" class="panel max-w-md mx-auto text-center space-y-4"><div class="text-3xl">📊</div><h2 class="font-bold text-lg">Reporting Access</h2><p class="muted text-sm">Sign in through the Principal Portal to access reports.</p><button id="go-admin" class="btn w-full">Go to Administrator Login</button></div><div id="reports-app" class="hidden space-y-5"><div class="panel flex flex-wrap justify-between items-end gap-3"><div><h2 class="font-bold text-xl">Instructional Impact Reporting</h2><p class="muted text-sm">School-specific thresholds from Google Sheets</p></div><div class="flex gap-2 items-end"><label class="text-sm font-semibold">Choose week<input id="report-date" type="date" class="field"></label><button id="refresh-reports" class="btn">View Reports</button></div></div><div id="report-summary" class="grid md:grid-cols-2 gap-4"></div><div class="panel overflow-x-auto"><h3 class="font-bold mb-3">Route-Level Details</h3><div id="report-routes"></div></div><div id="report-warning" class="text-sm muted"></div></div></section>
-<footer class="text-xs muted text-center pb-4">High Point Central High School · Bus Tracker</footer>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-yellow-100 border border-yellow-300 text-2xl" aria-label="Yellow school bus">🚌</div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-slate-900">Bus Tracker</h1>
+                <p class="text-xs text-slate-500 font-medium">High Point Central High School</p>
+            </div>
+        </div>
+        <div class="text-right hidden sm:block">
+            <div id="live-date" class="text-xs font-semibold text-slate-500 uppercase tracking-wider"></div>
+            <div id="live-clock" class="text-lg font-bold text-slate-700 tabular-nums"></div>
+        </div>
+    </div>
+</header>
+
+<main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col space-y-6">
+    <div id="notification-toast" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl z-50">
+        <span id="toast-message" class="text-sm font-medium"></span>
+    </div>
+
+    <div class="flex bg-slate-200/80 p-1 rounded-xl max-w-2xl w-full border border-slate-300/50 shadow-inner">
+        <button id="tab-logging" onclick="switchTab('logging')" class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold bg-white text-blue-600 shadow-sm touch-target">Staff Logging Panel</button>
+        <button id="tab-review" onclick="switchTab('review')" class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 touch-target">Principal Portal</button>
+        <button id="tab-reports" onclick="switchTab('reports')" class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 touch-target">Reports</button>
+    </div>
+
+    <section id="view-logging" class="space-y-6">
+        <div id="staff-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl text-center space-y-5 my-8">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto text-blue-600">🔒</div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Staff Verification</h3>
+                <p class="text-xs text-slate-500 mt-1">Enter the staff access PIN to open the bus logging panel.</p>
+            </div>
+            <div class="space-y-2">
+                <input type="password" id="staff-pin" placeholder="Enter Staff Password" class="w-full text-center border border-slate-300 rounded-xl py-3 px-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest font-mono" onkeydown="if(event.key === 'Enter') verifyStaffAccess()">
+                <p id="staff-auth-error" class="text-xs text-red-600 hidden font-medium">Incorrect staff credentials. Please try again.</p>
+            </div>
+            <button onclick="verifyStaffAccess()" class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-md touch-target">Authorize & Enter Logging Panel</button>
+        </div>
+
+        <div id="staff-logging-content" class="hidden space-y-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Active Bus Check-In</h2>
+                <p class="text-sm text-slate-500 mt-0.5">Select a bus route below to log arrival records instantly.</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <input type="text" id="new-bus-number" placeholder="Add custom route #..." class="border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-40 touch-target font-medium">
+                <button onclick="addCustomBus()" class="bg-blue-600 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors shadow-sm touch-target">+ Add</button>
+            </div>
+        </div>
+        <div id="bus-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </section>
+
+    <section id="view-review" class="hidden space-y-6">
+        <div id="principal-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl text-center space-y-5 my-8">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto text-blue-600">🔒</div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Administrator Verification</h3>
+                <p class="text-xs text-slate-500 mt-1">Enter your administrative password or master access PIN code.</p>
+            </div>
+            <div class="space-y-2">
+                <input type="password" id="admin-pin" placeholder="Enter Admin Password" class="w-full text-center border border-slate-300 rounded-xl py-3 px-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest font-mono">
+                <p id="auth-error" class="text-xs text-red-600 hidden font-medium">Incorrect administrative credentials. Please try again.</p>
+            </div>
+            <button onclick="verifyAdminAccess()" class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-md touch-target">Authorize & Enter Panel</button>
+        </div>
+
+        <div id="principal-dashboard-content" class="hidden space-y-6">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Submissions</div>
+                    <div id="kpi-total" class="text-2xl font-black text-slate-900 mt-1">0</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-amber-500 uppercase tracking-wider">Pending Buses</div>
+                    <div id="kpi-pending" class="text-2xl font-black text-amber-600 mt-1">0</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-emerald-500 uppercase tracking-wider">On-Time Arrivals</div>
+                    <div id="kpi-ontime" class="text-2xl font-black text-emerald-600 mt-1">0</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-blue-500 uppercase tracking-wider">Substituted Buses</div>
+                    <div id="kpi-subs" class="text-2xl font-black text-blue-600 mt-1">0</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-bold text-rose-500 uppercase tracking-wider">Flagged Incidents / Notes</div>
+                    <div id="kpi-notes" class="text-2xl font-black text-rose-600 mt-1">0</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Missing Check-Ins (Pending Fleet)</h3>
+                    <div id="missing-buses-list" class="flex flex-wrap gap-2 no-scrollbar max-h-36 overflow-y-auto"></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-3">On-Time Arrivals (School Cutoff)</h3>
+                    <div id="ontime-buses-list" class="flex flex-wrap gap-2 no-scrollbar max-h-36 overflow-y-auto"></div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-3">Late Arrivals (After School Cutoff)</h3>
+                    <div id="late-buses-list" class="flex flex-wrap gap-2 no-scrollbar max-h-36 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-blue-200 shadow-sm">
+                <h3 class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-3">Substitute Buses</h3>
+                <div id="substitute-buses-list" class="flex flex-wrap gap-2 no-scrollbar max-h-36 overflow-y-auto"></div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Submission Audit History Logs</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Historical Google Sheet records are retained permanently. Reset clears only the current display; historical records are retained.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="resetTodayView()" class="bg-slate-100 text-slate-700 font-semibold text-xs px-4 py-2.5 rounded-xl hover:bg-slate-200 transition-colors border border-slate-200 touch-target">Reset Today's View</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between gap-3"><h3 class="font-bold text-slate-900">Arrival Exceptions</h3><button id="refresh-exceptions" class="bg-blue-600 text-white rounded-xl px-4 py-2 text-xs font-semibold touch-target">Refresh</button></div>
+                <div id="exception-items" class="space-y-3 text-sm text-slate-600">Sign in to load exceptions.</div>
+              </div>
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between gap-3"><h3 class="font-bold text-slate-900">Delay / Closure Calendar</h3><button id="refresh-calendar" class="bg-blue-600 text-white rounded-xl px-4 py-2 text-xs font-semibold touch-target">Refresh</button></div>
+                <div id="calendar-items" class="space-y-2 text-sm text-slate-600"></div>
+                <form id="calendar-form" class="space-y-3 border-t pt-3">
+                  <label class="block text-sm font-semibold">Date<input id="calendar-date" type="date" required class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+                  <label class="block text-sm font-semibold">Schedule<select id="calendar-type" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"><option>School Closure</option><option>1-Hour Delay</option><option>2-Hour Delay</option><option>3-Hour Delay</option></select></label>
+                  <label class="block text-sm font-semibold">Notes<input id="calendar-notes" maxlength="500" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2"></label>
+                  <button type="submit" class="bg-blue-600 text-white rounded-xl px-4 py-3 text-sm font-semibold touch-target">Save Schedule</button>
+                </form>
+              </div>
+            </div>
+            <div class="hidden bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm" aria-hidden="true">
+                <div class="overflow-x-auto no-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-4 font-semibold">Date</th>
+                                <th class="p-4 font-semibold">Logged At</th>
+                                <th class="p-4 font-semibold">Route ID</th>
+                                <th class="p-4 font-semibold">Assigned Fleet Bus</th>
+                                <th class="p-4 font-semibold">Substitution Bus</th>
+                                <th class="p-4 font-semibold">Recorded Arrival</th>
+                                <th class="p-4 font-semibold">Operational Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-table-body" class="divide-y divide-slate-100 text-sm font-medium text-slate-700"></tbody>
+                    </table>
+                </div>
+                <div id="table-empty-state" class="hidden text-center py-12 text-slate-400">
+                    <p class="text-sm font-semibold">No bus data has been submitted yet.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-reports" class="hidden space-y-6">
+        <div id="reports-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl text-center space-y-5 my-8">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto text-blue-600">📊</div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Reporting Access</h3>
+                <p class="text-xs text-slate-500 mt-1">Enter the administrator PIN to view instructional-impact reports.</p>
+            </div>
+            <div class="space-y-2">
+                <input type="password" id="reports-pin" placeholder="Enter Admin Password" class="w-full text-center border border-slate-300 rounded-xl py-3 px-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest font-mono" onkeydown="if(event.key === 'Enter') verifyReportsAccess()">
+                <p id="reports-auth-error" class="text-xs text-red-600 hidden font-medium">Incorrect administrative credentials. Please try again.</p>
+            </div>
+            <button onclick="verifyReportsAccess()" class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-md touch-target">Authorize & View Reports</button>
+        </div>
+
+        <div id="reports-dashboard-content" class="hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Instructional Impact Reporting</h2>
+                    <p class="text-sm text-slate-500 mt-0.5">School-configured arrival thresholds · Closures excluded · Arrival Not Captured tracked separately.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="report-generated-at" class="text-xs text-slate-400 font-medium"></span>
+                    <button onclick="fetchReportData(true)" class="bg-blue-600 text-white font-semibold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm touch-target">Refresh Reports</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-end justify-between gap-4 mb-3">
+                    <div>
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider">School Year-to-Date Snapshot</h3>
+                        <p id="report-school-year-label" class="text-sm font-semibold text-slate-700 mt-1">Current School Year</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Arrival Records</div>
+                        <div id="report-ytd-records" class="text-2xl font-black text-slate-900 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-emerald-500 uppercase tracking-wider">On-Time Rate</div>
+                        <div id="report-ytd-ontime" class="text-2xl font-black text-emerald-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider">Average Arrival</div>
+                        <div id="report-ytd-average" class="text-2xl font-black text-blue-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-rose-500 uppercase tracking-wider">No-Capture Flags</div>
+                        <div id="report-ytd-exceptions" class="text-2xl font-black text-rose-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-amber-500 uppercase tracking-wider">High-Impact Events</div>
+                        <div id="report-ytd-highimpact" class="text-2xl font-black text-amber-600 mt-1">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-900">School Year-to-Date Potential Instructional Minutes Missed</h3>
+                            <p class="text-xs text-slate-500 mt-1">Per student, ranked by route. No-capture flags are not assigned minutes.</p>
+                        </div>
+                    </div>
+                    <div id="report-ytd-impact-bars" class="space-y-3"></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="mb-4">
+                        <h3 class="font-bold text-slate-900">School Year-to-Date On-Time Performance</h3>
+                        <p class="text-xs text-slate-500 mt-1">Percentage of captured arrivals meeting the school cutoff.</p>
+                    </div>
+                    <div id="report-ytd-ontime-bars" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-3">
+                    <div>
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider">Selected Week</h3>
+                        <p id="report-week-label" class="text-sm font-semibold text-slate-700 mt-1"></p>
+                    </div>
+                    <div class="flex flex-wrap items-end gap-2">
+                        <div>
+                            <label for="report-week-picker" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Choose Any Date in Week</label>
+                            <input type="date" id="report-week-picker" class="border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 touch-target">
+                        </div>
+                        <button onclick="applyReportWeek()" class="bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl hover:bg-slate-800 transition-colors touch-target">View Week</button>
+                        <button onclick="shiftReportWeek(-7)" class="bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-xs px-3 py-2.5 rounded-xl hover:bg-slate-200 touch-target">← Previous</button>
+                        <button onclick="shiftReportWeek(7)" class="bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-xs px-3 py-2.5 rounded-xl hover:bg-slate-200 touch-target">Next →</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Arrivals Logged</div>
+                        <div id="report-week-records" class="text-2xl font-black text-slate-900 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-emerald-500 uppercase tracking-wider">On-Time Rate</div>
+                        <div id="report-week-ontime" class="text-2xl font-black text-emerald-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider">Average Arrival Time</div>
+                        <div id="report-week-average" class="text-2xl font-black text-blue-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-rose-500 uppercase tracking-wider">No-Capture Flags</div>
+                        <div id="report-week-exceptions" class="text-2xl font-black text-rose-600 mt-1">—</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-amber-500 uppercase tracking-wider">High-Impact Events</div>
+                        <div id="report-week-highimpact" class="text-2xl font-black text-amber-600 mt-1">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="mb-4">
+                    <h3 class="font-bold text-slate-900">Selected Week: Potential Minutes Missed per Student</h3>
+                    <p class="text-xs text-slate-500 mt-1">Only captured arrivals are assigned instructional minutes.</p>
+                </div>
+                <div id="report-week-impact-bars" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                <div class="p-5 border-b border-slate-200">
+                    <h3 class="font-bold text-slate-900">Route-Level School Year-to-Date Detail</h3>
+                    <p class="text-xs text-slate-500 mt-1">Useful for identifying routes whose students may need additional academic support.</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3">Route</th>
+                                <th class="p-3">Avg Arrival</th>
+                                <th class="p-3">On-Time</th>
+                                <th class="p-3">Late Days</th>
+                                <th class="p-3">Avg Missed When Late</th>
+                                <th class="p-3">SYTD Min / Student</th>
+                                <th class="p-3">High Impact</th>
+                                <th class="p-3">No Capture</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-route-table" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-sm">
+                <h3 class="font-bold text-rose-700">Unresolved Arrival Not Captured — GPS Follow-Up</h3>
+                <p class="text-xs text-slate-500 mt-1 mb-4">These records do not receive an instructional-loss value until the actual arrival is verified.</p>
+                <div id="report-exception-list" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+    </section>
+
 </main>
+
 <script>
 'use strict';
-const API='https://script.google.com/macros/s/AKfycbzbMTtSBCZ3aSp1Id6kJjUUH0BtRxP8MJIMyyAYPKBp5B04IW29F6ZiSHieVovGvtHSjg/exec';
+// Same Northwest interface, High Point Central's authenticated Apps Script bridge.
+// Never put staff/admin PINs or tokens into GET requests or this public source.
+const GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzbMTtSBCZ3aSp1Id6kJjUUH0BtRxP8MJIMyyAYPKBp5B04IW29F6ZiSHieVovGvtHSjg/exec';
 const $=id=>document.getElementById(id);
-const state={config:null,staffToken:'',adminToken:'',arrivals:[]};
-const requests=new Map();
-function notice(message,error=false){const n=$('notice');n.textContent=message;n.classList.remove('hidden');n.style.borderColor=error?'#fca5a5':'#93c5fd';}
-function safe(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function transport(params){return new Promise((resolve,reject)=>{const requestId=crypto.randomUUID();const iframe=document.createElement('iframe');iframe.name='bt_'+requestId;iframe.style.display='none';const form=document.createElement('form');form.method='POST';form.action=API;form.target=iframe.name;form.style.display='none';const fields={...params,requestId};Object.entries(fields).forEach(([name,value])=>{const input=document.createElement('input');input.type='hidden';input.name=name;input.value=String(value??'');form.appendChild(input);});document.body.append(iframe,form);const cleanup=()=>{requests.delete(requestId);form.remove();iframe.remove();};const timer=setTimeout(()=>{cleanup();reject(new Error('The Apps Script response timed out. Check deployment permissions or browser iframe restrictions.'));},25000);requests.set(requestId,{resolve,reject,timer,cleanup});form.submit();});}
-window.addEventListener('message',event=>{if(!/^https:\/\/([a-z0-9-]+\.)*googleusercontent\.com$/.test(event.origin)&&event.origin!=='https://script.google.com')return;const msg=event.data;if(!msg||msg.type!=='BT_HPC_REPLY'||!requests.has(msg.requestId))return;const pending=requests.get(msg.requestId);clearTimeout(pending.timer);pending.cleanup();if(msg.result?.ok)pending.resolve(msg.result.data);else pending.reject(new Error(msg.result?.error||'Operation failed'));});
-async function call(action,params={}){return transport({action,...params});}
-function bootstrap(){const cb='hpcBootstrap';const script=document.createElement('script');window[cb]=data=>{if(!data.success){notice(data.error||'Could not load school settings',true);return;}state.config=data;$('school').textContent=data.school;$('schedule').textContent=`${data.schedule.type} · On time through ${data.schedule.onTimeCutoff||'N/A'} · High impact from ${data.schedule.highImpactBegins||'N/A'}`;renderRoutes();script.remove();};script.src=API+'?action=bootstrap&callback='+cb+'&_='+Date.now();script.onerror=()=>notice('Could not load school configuration.',true);document.head.appendChild(script);}
-function showTab(tab){['staff','admin','reports'].forEach(id=>$(id).classList.toggle('hidden',id!==tab));document.querySelectorAll('.tab').forEach(btn=>{btn.classList.toggle('bg-white',btn.dataset.tab===tab);btn.classList.toggle('text-blue-700',btn.dataset.tab===tab);});if(tab==='reports'&&state.adminToken){$('reports-login').classList.add('hidden');$('reports-app').classList.remove('hidden');}}
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
-function renderRoutes(){const c=$('route-cards');c.innerHTML='';if(!state.config)return;const closed=state.config.schedule.closed;state.config.routes.forEach(r=>{const done=state.arrivals.find(a=>String(a.routeId)===String(r.id));const card=document.createElement('form');card.className='panel space-y-3';card.innerHTML=`<div class="flex justify-between"><h3 class="font-bold">${safe(r.displayName)}</h3><span class="text-sm ${done?'text-emerald-700':'text-amber-700'}">${done?'Arrived':'Pending'}</span></div><label class="block text-sm font-semibold">Arrival time<input class="field mt-1" type="time" name="arrivalTime" required></label><button type="button" class="btn now">Use Current Time</button><label class="block text-sm font-semibold">Substitute bus (optional)<input class="field mt-1" name="substituteFleetUnit" maxlength="50"></label><label class="block text-sm font-semibold">Staff notes (optional)<textarea class="field mt-1" name="notes" maxlength="1000"></textarea></label><button type="submit" class="btn w-full">${done?'Already Recorded':'Save Arrival'}</button>`;card.querySelector('.now').onclick=()=>{const d=new Date();card.elements.arrivalTime.value=[d.getHours(),d.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');};const submit=card.querySelector('[type=submit]');submit.disabled=Boolean(done||closed);card.onsubmit=async e=>{e.preventDefault();submit.disabled=true;try{const data=await call('submit',{token:state.staffToken,routeId:r.id,arrivalTime:card.elements.arrivalTime.value,substituteFleetUnit:card.elements.substituteFleetUnit.value,notes:card.elements.notes.value});notice(`${data.routeName} saved at ${data.arrivalTime}.`);await refreshStaff();}catch(err){notice(err.message,true);submit.disabled=false;}};c.appendChild(card);});}
-async function refreshStaff(){if(!state.staffToken)return;const data=await call('staffStatus',{token:state.staffToken});state.arrivals=data.arrivals||[];renderRoutes();}
-$('staff-auth').onclick=async()=>{const btn=$('staff-auth');btn.disabled=true;try{const data=await call('staffLogin',{pin:$('staff-pin').value});state.staffToken=data.token;$('staff-pin').value='';$('staff-login').classList.add('hidden');$('staff-app').classList.remove('hidden');await refreshStaff();notice('Staff access granted.');}catch(err){notice(err.message,true);}finally{btn.disabled=false;}};
-$('admin-auth').onclick=async()=>{const btn=$('admin-auth');btn.disabled=true;try{const data=await call('adminLogin',{pin:$('admin-pin').value});state.adminToken=data.token;$('admin-pin').value='';$('admin-login').classList.add('hidden');$('admin-app').classList.remove('hidden');$('reports-login').classList.add('hidden');$('reports-app').classList.remove('hidden');notice('Administrator access granted.');await Promise.allSettled([refreshAdmin(),refreshExceptions(),refreshCalendar()]);}catch(err){notice(err.message,true);}finally{btn.disabled=false;}};
-function pills(target,items){$(target).innerHTML=items?.length?items.map(a=>`<span class="pill">${safe(a.displayName||a.routeName||a.routeId||a.name||a)}</span>`).join(''):'<span class="muted text-sm">None</span>';}
-async function refreshAdmin(){try{const d=await call('dashboard',{token:state.adminToken});const t=d.totals||{};const metrics=[['Total Submissions',t.submissions],['Pending Buses',t.pending],['On-Time Arrivals',t.onTime],['Substituted Buses',t.substitutes],['Flagged Notes',t.flagged]];$('metrics').innerHTML=metrics.map(([label,val])=>`<div class="panel"><p class="muted text-xs font-bold uppercase">${label}</p><p class="text-3xl font-black mt-2">${safe(val??0)}</p></div>`).join('');pills('pending',d.pending);pills('ontime',d.onTime);pills('late',d.late);pills('flagged',[...(d.substitutes||[]),...(d.flagged||[])]);}catch(e){notice(e.message,true);}}
-async function refreshExceptions(){try{const d=await call('exceptions',{token:state.adminToken});const list=(d.exceptions||[]).filter(x=>!/^resolved|^excluded/i.test(x.resolutionStatus||''));$('exceptions').innerHTML=list.length?'':'<p class="muted text-sm">No unresolved exceptions.</p>';list.slice(0,40).forEach(x=>{const form=document.createElement('form');form.className='border-b pb-3 space-y-2';form.innerHTML=`<p class="text-sm font-semibold">${safe(x.date)} · Bus ${safe(x.routeId)} · ${safe(x.exceptionStatus)}</p><input name="verifiedTime" type="time" class="field" aria-label="Verified arrival time"><input name="notes" class="field" required maxlength="2000" placeholder="Administrator resolution notes"><button class="btn" type="submit">Resolve Exception</button>`;form.onsubmit=async e=>{e.preventDefault();try{await call('resolveException',{token:state.adminToken,exceptionId:x.exceptionId,verifiedTime:form.elements.verifiedTime.value,notes:form.elements.notes.value});notice('Exception updated.');refreshExceptions();}catch(err){notice(err.message,true);}};$('exceptions').appendChild(form);});}catch(e){notice(e.message,true);}}
-async function refreshCalendar(){try{const d=await call('calendar',{token:state.adminToken});const rows=Array.isArray(d)?d:(d.dates||d.entries||d.calendar||[]);$('calendar').innerHTML=Array.isArray(rows)?rows.slice(0,30).map(x=>`<p class="text-sm border-b pb-2">${safe(x.date||x.dateKey)} · ${safe(x.type||x.scheduleType)}</p>`).join(''):'<p class="muted text-sm">Calendar loaded.</p>';}catch(e){notice(e.message,true);}}
-$('calendar-form').onsubmit=async e=>{e.preventDefault();try{await call('calendarSave',{token:state.adminToken,date:$('calendar-date').value,type:$('calendar-type').value,notes:$('calendar-notes').value});notice('Calendar saved.');refreshCalendar();}catch(err){notice(err.message,true);}};
-function summaryCard(label,d){if(!d||typeof d!=='object')return '';return `<div class="panel"><h3 class="font-bold mb-3">${label}</h3><div class="grid grid-cols-2 gap-3">${Object.entries(d).filter(([k,v])=>typeof v==='number'||typeof v==='string').slice(0,12).map(([k,v])=>`<div><div class="text-xs muted">${safe(k.replace(/([A-Z])/g,' $1'))}</div><div class="font-bold">${safe(v)}</div></div>`).join('')}</div></div>`;}
-async function refreshReports(){try{const d=await call('report',{token:state.adminToken,date:$('report-date').value});$('report-summary').innerHTML=summaryCard('School Year-to-Date',d.ytd)+summaryCard('Selected Week',d.weekly);const routes=d.weekly?.routes||d.ytd?.routes||[];$('report-routes').innerHTML=routes.length?`<table class="w-full text-sm"><thead><tr><th class="text-left p-2">Route</th><th class="text-right p-2">On-Time %</th><th class="text-right p-2">Minutes Missed</th><th class="text-right p-2">Late Days</th></tr></thead><tbody>${routes.map(r=>`<tr class="border-t"><td class="p-2">${safe(r.route||r.routeId)}</td><td class="p-2 text-right">${safe(Math.round((r.onTimePct||0)*100))}%</td><td class="p-2 text-right">${safe(r.potentialMissedPerStudent||0)}</td><td class="p-2 text-right">${safe(r.lateDays||0)}</td></tr>`).join('')}</tbody></table>`:'<p class="muted">No route detail for the selected week.</p>';$('report-warning').textContent=d.warning||'';}catch(e){notice(e.message,true);}}
-$('refresh-admin').onclick=refreshAdmin;$('refresh-exceptions').onclick=refreshExceptions;$('refresh-calendar').onclick=refreshCalendar;$('refresh-reports').onclick=refreshReports;$('go-admin').onclick=()=>showTab('admin');
-$('report-date').value=new Date().toISOString().slice(0,10);setInterval(()=>{$('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit'});},1000);bootstrap();
+const state={config:null,staffToken:'',adminToken:'',arrivals:[],dashboard:null,report:null,week:new Date()};
+const pendingRequests=new Map();
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function notify(message,isError=false){const t=$('notification-toast');$('toast-message').textContent=message;t.classList.remove('hidden');t.classList.toggle('bg-red-800',isError);t.classList.toggle('bg-slate-900',!isError);clearTimeout(notify.timer);notify.timer=setTimeout(()=>t.classList.add('hidden'),6500);}
+function postBridge(fields){return new Promise((resolve,reject)=>{
+  const requestId=crypto.randomUUID();const iframe=document.createElement('iframe');iframe.name='hpc_'+requestId;iframe.style.display='none';iframe.setAttribute('title','Background server request');
+  const form=document.createElement('form');form.method='POST';form.action=GOOGLE_SCRIPT_URL;form.target=iframe.name;form.style.display='none';
+  Object.entries({...fields,requestId}).forEach(([key,value])=>{const input=document.createElement('input');input.name=key;input.type='hidden';input.value=String(value??'');form.appendChild(input);});
+  document.body.append(iframe,form);
+  const cleanup=()=>{pendingRequests.delete(requestId);form.remove();iframe.remove();};
+  const timer=setTimeout(()=>{cleanup();reject(new Error('The server request timed out. Check your Apps Script deployment.'));},25000);
+  pendingRequests.set(requestId,{resolve,reject,timer,cleanup});form.submit();
+});}
+window.addEventListener('message',event=>{
+  if(!/^https:\/\/([a-z0-9-]+\.)*googleusercontent\.com$/.test(event.origin)&&event.origin!=='https://script.google.com')return;
+  const message=event.data;if(!message||message.type!=='BT_HPC_REPLY'||!pendingRequests.has(message.requestId))return;
+  const p=pendingRequests.get(message.requestId);clearTimeout(p.timer);p.cleanup();
+  if(message.result?.ok)p.resolve(message.result.data);else p.reject(new Error(message.result?.error||'Request failed'));
+});
+function api(action,params={}){return postBridge({action,...params});}
+function bootstrap(){
+  const callback='hpcSchoolBootstrap';const script=document.createElement('script');
+  window[callback]=data=>{if(!data?.success){notify(data?.error||'School settings could not load.',true);return;}
+    state.config=data;document.querySelector('header p').textContent=data.school;
+    updateThresholdLabels();renderBusCards();script.remove();delete window[callback];};
+  script.src=GOOGLE_SCRIPT_URL+'?action=bootstrap&callback='+callback+'&_='+Date.now();
+  script.onerror=()=>notify('Could not load High Point Central school configuration.',true);document.head.appendChild(script);
+}
+function updateThresholdLabels(){const s=state.config?.schedule;if(!s)return;
+  const cut=s.onTimeCutoff||'school cutoff';const late=s.lateBegins||cut;
+  document.querySelector('#ontime-buses-list').closest('.bg-white').querySelector('h3').textContent='On-Time Arrivals (By '+cut+')';
+  document.querySelector('#late-buses-list').closest('.bg-white').querySelector('h3').textContent='Late Arrivals (After '+cut+')';
+  document.querySelector('#view-reports h2 + p').textContent='On time through '+cut+' · High impact from '+(s.highImpactBegins||'school threshold')+' · Closures excluded.';
+  document.querySelector('#report-ytd-ontime-bars').parentElement.querySelector('p').textContent='Percentage of captured arrivals meeting '+cut+'.';
+}
+function switchTab(tab){
+  ['logging','review','reports'].forEach(id=>{$('view-'+id).classList.toggle('hidden',id!==tab);
+    const b=$('tab-'+id);b.classList.toggle('bg-white',id===tab);b.classList.toggle('text-blue-600',id===tab);b.classList.toggle('shadow-sm',id===tab);b.classList.toggle('text-slate-600',id!==tab);});
+  if(tab==='reports'&&state.adminToken){$('reports-auth-wall').classList.add('hidden');$('reports-dashboard-content').classList.remove('hidden');if(!state.report)fetchReportData();}
+  if(tab==='review'&&state.adminToken)refreshDashboard();
+}
+function nowLocalTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function timeDisplay(value){if(!value)return '—';const m=String(value).match(/^(\d{1,2}):(\d{2})/);if(!m)return String(value);const h=Number(m[1]);return (h%12||12)+':'+m[2]+' '+(h>=12?'PM':'AM');}
+function recordFor(id){return state.arrivals.find(r=>String(r.routeId)===String(id));}
+function renderBusCards(){
+  const container=$('bus-cards-container');container.innerHTML='';if(!state.config)return;
+  const closed=state.config.schedule.closed;
+  state.config.routes.forEach(route=>{
+    const done=recordFor(route.id);const form=document.createElement('form');form.className='bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-4';
+    form.innerHTML=`<div class="flex items-center justify-between gap-2"><div><h3 class="text-lg font-bold text-slate-900">${escapeHtml(route.displayName)}</h3><p class="text-xs text-slate-500">Assigned route ${escapeHtml(route.id)}</p></div><span class="text-xs font-bold px-3 py-1.5 rounded-full ${done?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">${done?'✓ Arrived':'Pending'}</span></div>
+    ${done?`<div class="bg-emerald-50 text-emerald-800 rounded-xl p-3 text-sm font-semibold">Recorded ${escapeHtml(done.arrivalTime||'today')}${done.substituteFleetUnit?' · Substitute '+escapeHtml(done.substituteFleetUnit):''}</div>`:''}
+    <label class="block text-xs font-bold text-slate-600 uppercase">Arrival Time<input name="arrivalTime" type="time" required class="block mt-2 w-full border border-slate-300 rounded-xl px-3 py-3 text-base"></label>
+    <button type="button" class="now w-full bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-sm py-2.5 rounded-xl touch-target">Use Current Time</button>
+    <label class="block text-xs font-bold text-slate-600 uppercase">Substitute Bus Number (Optional)<input name="substituteFleetUnit" maxlength="50" placeholder="Enter substitute bus number" class="block mt-2 w-full border border-slate-300 rounded-xl px-3 py-3 text-base font-normal normal-case"></label>
+    <label class="block text-xs font-bold text-slate-600 uppercase">Operational Notes (Optional)<textarea name="notes" maxlength="1000" rows="2" placeholder="Reason for delay or other details" class="block mt-2 w-full border border-slate-300 rounded-xl px-3 py-3 text-sm font-normal normal-case"></textarea></label>
+    <button type="submit" class="save w-full ${done?'bg-emerald-600':'bg-blue-600'} text-white font-bold rounded-xl py-3 touch-target">${done?'Already Logged':'Record Arrival'}</button>`;
+    form.querySelector('.now').onclick=()=>{form.elements.arrivalTime.value=nowLocalTime();};
+    const save=form.querySelector('.save');save.disabled=Boolean(done||closed);
+    form.onsubmit=async event=>{event.preventDefault();if(!state.staffToken)return notify('Please sign in again.',true);
+      save.disabled=true;save.textContent='Saving…';try{
+        const result=await api('submit',{token:state.staffToken,routeId:route.id,arrivalTime:form.elements.arrivalTime.value,substituteFleetUnit:form.elements.substituteFleetUnit.value,notes:form.elements.notes.value});
+        notify((result.routeName||route.displayName)+' saved at '+(result.arrivalTime||timeDisplay(form.elements.arrivalTime.value))+'.');await refreshStaff();
+      }catch(err){notify(err.message,true);save.disabled=false;save.textContent='Record Arrival';}};
+    container.appendChild(form);
+  });
+  if(closed)notify('School is marked closed today; regular arrival submissions are disabled.');
+}
+async function refreshStaff(){const d=await api('staffStatus',{token:state.staffToken});state.arrivals=d.arrivals||[];renderBusCards();}
+async function verifyStaffAccess(){const btn=document.querySelector('#staff-auth-wall button');btn.disabled=true;$('staff-auth-error').classList.add('hidden');
+  try{const d=await api('staffLogin',{pin:$('staff-pin').value});state.staffToken=d.token;$('staff-pin').value='';$('staff-auth-wall').classList.add('hidden');$('staff-logging-content').classList.remove('hidden');await refreshStaff();notify('Staff access granted.');}
+  catch(err){$('staff-auth-error').textContent=err.message;$('staff-auth-error').classList.remove('hidden');notify(err.message,true);}finally{btn.disabled=false;}}
+async function verifyAdminAccess(){const btn=document.querySelector('#principal-auth-wall button');btn.disabled=true;$('auth-error').classList.add('hidden');
+  try{const d=await api('adminLogin',{pin:$('admin-pin').value});state.adminToken=d.token;$('admin-pin').value='';$('principal-auth-wall').classList.add('hidden');$('principal-dashboard-content').classList.remove('hidden');$('reports-auth-wall').classList.add('hidden');$('reports-dashboard-content').classList.remove('hidden');notify('Administrator access granted.');await Promise.allSettled([refreshDashboard(),refreshExceptions(),refreshCalendar()]);}
+  catch(err){$('auth-error').textContent=err.message;$('auth-error').classList.remove('hidden');notify(err.message,true);}finally{btn.disabled=false;}}
+function verifyReportsAccess(){if(state.adminToken){switchTab('reports');return;}const entered=$('reports-pin').value;$('admin-pin').value=entered;$('reports-pin').value='';switchTab('review');verifyAdminAccess().then(()=>{if(state.adminToken)switchTab('reports');});}
+function renderPills(id,rows,style){const el=$(id);el.innerHTML=rows?.length?rows.map(r=>`<span class="inline-block rounded-lg px-3 py-2 text-xs font-bold mr-2 mb-2 ${style}">${escapeHtml(r.routeName||r.displayName||r.routeId||r)}${r.arrivalTime?' · '+escapeHtml(r.arrivalTime):''}</span>`).join(''):'<span class="text-sm text-slate-400">None</span>';}
+async function refreshDashboard(){if(!state.adminToken)return;try{
+  const d=await api('dashboard',{token:state.adminToken});state.dashboard=d;const t=d.totals||{};
+  $('kpi-total').textContent=t.submissions??0;$('kpi-pending').textContent=t.pending??0;$('kpi-ontime').textContent=t.onTime??0;$('kpi-subs').textContent=t.substitutes??0;$('kpi-notes').textContent=t.flagged??0;
+  renderPills('missing-buses-list',d.pending,'bg-amber-100 text-amber-800');renderPills('ontime-buses-list',d.onTime,'bg-emerald-100 text-emerald-800');renderPills('late-buses-list',d.late,'bg-rose-100 text-rose-800');renderPills('substitute-buses-list',d.substitutes,'bg-blue-100 text-blue-800');
+  if(d.closed)notify('Today is a school closure. Dashboard shows recorded/pending buses for reference.');
+}catch(err){notify(err.message,true);}}
+function resetTodayView(){refreshDashboard();notify('Display refreshed. Historical records remain in Google Sheets.');}
+function addCustomBus(){notify('Route changes must be made in the High Point Central Routes sheet. The live list updates from Google Sheets.',true);}
+async function refreshExceptions(){if(!state.adminToken)return;try{
+  const d=await api('exceptions',{token:state.adminToken});const list=(d.exceptions||[]).filter(r=>!/^(resolved|excluded)/i.test(r.resolutionStatus||''));const el=$('exception-items');el.innerHTML='';
+  if(!list.length){el.innerHTML='<p class="text-slate-500 text-sm">No unresolved exceptions.</p>';return;}
+  list.slice(0,40).forEach(r=>{const f=document.createElement('form');f.className='space-y-2 border-b pb-4';f.innerHTML=`<p class="font-semibold text-slate-700">${escapeHtml(r.date)} · Bus ${escapeHtml(r.routeId)} · ${escapeHtml(r.exceptionStatus)}</p><label class="block text-xs font-semibold">Verified arrival (optional)<input name="verifiedTime" type="time" class="block w-full border border-slate-300 rounded-xl p-2 mt-1"></label><label class="block text-xs font-semibold">Resolution notes<input name="notes" required maxlength="2000" class="block w-full border border-slate-300 rounded-xl p-2 mt-1"></label><button type="submit" class="bg-blue-600 text-white rounded-xl px-4 py-2 text-xs font-semibold touch-target">Resolve</button>`;
+    f.onsubmit=async e=>{e.preventDefault();try{await api('resolveException',{token:state.adminToken,exceptionId:r.exceptionId,verifiedTime:f.elements.verifiedTime.value,notes:f.elements.notes.value});notify('Exception updated.');refreshExceptions();}catch(err){notify(err.message,true);}};el.appendChild(f);});
+}catch(err){notify(err.message,true);}}
+async function refreshCalendar(){if(!state.adminToken)return;try{
+  const d=await api('calendar',{token:state.adminToken});const rows=Array.isArray(d)?d:(d.dates||[]);const el=$('calendar-items');el.innerHTML='';
+  if(!rows.length){el.innerHTML='<p class="text-sm text-slate-400">No special schedule dates entered.</p>';return;}
+  rows.slice(0,30).forEach(r=>{const item=document.createElement('div');item.className='flex items-center justify-between border-b py-2 gap-2';item.innerHTML=`<span>${escapeHtml(r.date)} · ${escapeHtml(r.type)}${r.notes?' · '+escapeHtml(r.notes):''}</span><button class="text-red-600 text-xs font-bold px-2 py-2" type="button">Delete</button>`;item.querySelector('button').onclick=async()=>{if(!confirm('Remove '+r.date+' from the special schedule calendar?'))return;try{await api('calendarDelete',{token:state.adminToken,date:r.date});notify('Calendar date removed.');refreshCalendar();}catch(err){notify(err.message,true);}};el.appendChild(item);});
+}catch(err){notify(err.message,true);}}
+$('calendar-form').onsubmit=async e=>{e.preventDefault();try{await api('calendarSave',{token:state.adminToken,date:$('calendar-date').value,type:$('calendar-type').value,notes:$('calendar-notes').value});notify('Special schedule saved.');refreshCalendar();}catch(err){notify(err.message,true);}};
+function dateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function parseDate(value){const m=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?new Date(+m[1],+m[2]-1,+m[3]):new Date();}
+function mondayFor(value){const d=parseDate(value);const dow=d.getDay();d.setDate(d.getDate()-(dow===0?6:dow-1));return d;}
+function applyReportWeek(){const value=$('report-week-picker').value;if(!value)return notify('Choose a date.',true);state.week=parseDate(value);fetchReportData();}
+function shiftReportWeek(days){const d=new Date(state.week);d.setDate(d.getDate()+days);state.week=d;$('report-week-picker').value=dateKey(d);fetchReportData();}
+function setText(id,v){$(id).textContent=v??'—';}
+function percent(part,total){return total?Math.round(100*part/total)+'%':'—';}
+function avgTime(rows){let total=0,n=0;rows.forEach(r=>{if(Number.isFinite(r.avgArrivalMinutes)&&r.regularArrivalCount){total+=r.avgArrivalMinutes*r.regularArrivalCount;n+=r.regularArrivalCount;}});return n?timeDisplay(String(Math.floor(total/n/60)).padStart(2,'0')+':'+String(Math.round(total/n)%60).padStart(2,'0')):'—';}
+function summarize(rows,highDays){const arrivals=rows.reduce((n,r)=>n+(r.daysLogged||0),0);const onTime=rows.reduce((n,r)=>n+(r.onTimeDays||0),0);return {arrivals,onTime:percent(onTime,arrivals),average:avgTime(rows),exceptions:rows.reduce((n,r)=>n+(r.noCapture||0),0),high:highDays||0};}
+function barList(id,rows,key,formatter){const el=$(id);el.innerHTML='';const sorted=[...rows].sort((a,b)=>(b[key]||0)-(a[key]||0));const max=Math.max(1,...sorted.map(r=>r[key]||0));
+  if(!sorted.length){el.innerHTML='<p class="text-sm text-slate-400">No records for this period.</p>';return;}
+  sorted.forEach(r=>{const value=Number(r[key]||0);const outer=document.createElement('div');outer.className='space-y-1';outer.innerHTML=`<div class="flex justify-between gap-3 text-xs font-semibold"><span>${escapeHtml(r.route)}</span><span>${escapeHtml(formatter(value))}</span></div><div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:${Math.max(0,Math.min(100,100*value/max))}%"></div></div>`;el.appendChild(outer);});
+}
+function renderReportRouteTable(rows){$('report-route-table').innerHTML=rows.length?rows.map(r=>`<tr class="border-b border-slate-100"><td class="p-3 font-bold">${escapeHtml(r.route)}</td><td class="p-3">${escapeHtml(r.avgArrivalMinutes==null?'—':timeDisplay(String(Math.floor(r.avgArrivalMinutes/60)).padStart(2,'0')+':'+String(Math.round(r.avgArrivalMinutes%60)).padStart(2,'0')))}</td><td class="p-3">${Math.round((r.onTimePct||0)*100)}%</td><td class="p-3">${r.lateDays||0}</td><td class="p-3">${Number(r.avgMissedLateDays||0).toFixed(1)}</td><td class="p-3">${r.potentialMissedPerStudent||0}</td><td class="p-3">${r.highImpactDays||0}</td><td class="p-3">${r.noCapture||0}</td></tr>`).join(''):'<tr><td colspan="8" class="p-5 text-slate-400">No route data yet.</td></tr>';}
+function renderReportsDashboard(d){
+  state.report=d;const y=d.ytd||[],w=d.weekly||[];const ys=summarize(y,d.ytdHighImpactDays),ws=summarize(w,d.weeklyHighImpactDays);
+  setText('report-generated-at','Updated '+(d.generatedAt||''));setText('report-school-year-label',d.schoolYearLabel||'School Year-to-Date');
+  [['ytd',ys],['week',ws]].forEach(([p,s])=>{setText('report-'+p+'-records',s.arrivals);setText('report-'+p+'-ontime',s.onTime);setText('report-'+p+'-average',s.average);setText('report-'+p+'-exceptions',s.exceptions);setText('report-'+p+'-highimpact',s.high);});
+  setText('report-week-label','Week of '+(d.selectedWeekStart||dateKey(mondayFor(dateKey(state.week)))));
+  barList('report-ytd-impact-bars',y,'potentialMissedPerStudent',n=>n.toFixed(0)+' min');barList('report-ytd-ontime-bars',y,'onTimePct',n=>Math.round(n*100)+'%');barList('report-week-impact-bars',w,'potentialMissedPerStudent',n=>n.toFixed(0)+' min');
+  renderReportRouteTable(y);$('report-exception-list').innerHTML=(d.unresolvedExceptions||[]).length?(d.unresolvedExceptions||[]).map(x=>`<span class="inline-block bg-rose-50 text-rose-700 rounded-lg px-3 py-2 mr-2 mb-2 text-xs font-bold">${escapeHtml(x.date)} · ${escapeHtml(x.route)}</span>`).join(''):'<span class="text-sm text-slate-400">No unresolved exceptions.</span>';
+  if(d.warning){setText('report-school-year-label',(d.schoolYearLabel||'School Year-to-Date')+' · Provisional');}
+}
+async function fetchReportData(showNotice=false){if(!state.adminToken)return notify('Administrator sign-in required.',true);try{const d=await api('report',{token:state.adminToken,date:dateKey(state.week)});renderReportsDashboard(d);if(showNotice)notify('Reports refreshed.');}catch(err){notify(err.message,true);}}
+function refreshClock(){const now=new Date();$('live-date').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});$('live-clock').textContent=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+$('refresh-exceptions').onclick=refreshExceptions;$('refresh-calendar').onclick=refreshCalendar;
+$('report-week-picker').value=dateKey(state.week);refreshClock();setInterval(refreshClock,15000);bootstrap();
 </script>
-</body></html>
+</body>
+</html>
