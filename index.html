@@ -1,203 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width,initial-scale=1" name="viewport"/>
-  <title>
-   Bus Tracker | High Point Central High School
-  </title>
-  <style>
-   :root {
-  font-family:Arial,Helvetica,sans-serif;
-  color:#172b45;
-  background:#f5f7fa}
-* {
-  box-sizing:border-box}
-body {
-  margin:0}
-header {
-  background:white;
-  border-bottom:1px solid #dce5ef;
-  box-shadow:0 1px 5px #1a315111}
-header .inner {
-  max-width:1500px;
-  margin:auto;
-  padding:13px 22px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px}
-.brand {
-  display:flex;
-  align-items:center;
-  gap:12px}
-.bus {
-  display:grid;
-  place-items:center;
-  font-size:25px;
-  background:#fff8d9;
-  border:1px solid #f7d65d;
-  width:48px;
-  height:48px;
-  border-radius:13px}
-.brand strong {
-  display:block;
-  font-size:22px;
-  color:#172237}
-.brand small {
-  display:block;
-  margin-top:4px;
-  color:#667b96;
-  font-size:13px}
-#clock {
-  text-align:right;
-  font-size:14px;
-  color:#526780;
-  font-weight:700}
-main {
-  max-width:1500px;
-  margin:auto;
-  padding:24px 22px}
-.tabs {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  background:#e7edf5;
-  border:1px solid #d6dfeb;
-  border-radius:14px;
-  padding:5px;
-  max-width:850px;
-  margin:0 auto 22px;
-  gap:5px}
-.tabs button {
-  font:inherit;
-  font-size:15px;
-  font-weight:700;
-  border:0;
-  border-radius:10px;
-  background:transparent;
-  color:#3d536e;
-  padding:16px 10px;
-  cursor:pointer}
-.tabs button.active {
-  background:#fff;
-  color:#2462e9;
-  box-shadow:0 1px 5px #1a31511b}
-.panel {
-  background:#fff;
-  border:1px solid #dce5ef;
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 2px 7px #1a315110}
-.frame {
-  width:100%;
-  height:calc(100vh - 207px);
-  min-height:650px;
-  border:0;
-  display:block;
-  background:white}
-.notice {
-  font-size:13px;
-  color:#63758c;
-  text-align:center;
-  margin:12px auto}
-.fallback {
-  display:none;
-  background:#fff7df;
-  border-top:1px solid #f0d9a0;
-  padding:12px 18px;
-  color:#775316;
-  font-size:13px}
-.fallback a {
-  color:#1e5be3;
-  font-weight:700}
-footer {
-  text-align:center;
-  color:#8492a4;
-  font-size:12px;
-  padding:0 16px 20px}
-@media(max-width:600px) {
-  header .inner {
-  padding:12px}
-.brand strong {
-  font-size:19px}
-.brand small {
-  font-size:11px}
-#clock {
-  display:none}
-main {
-  padding:12px}
-.tabs button {
-  font-size:12px;
-  padding:12px 5px}
-.frame {
-  height:calc(100vh - 175px);
-  min-height:580px}
-}
-  </style>
- </head>
- <body>
-  <header>
-   <div class="inner">
-    <div class="brand">
-     <div aria-hidden="true" class="bus">
-      🚌
-     </div>
-     <div>
-      <strong>
-       Bus Tracker
-      </strong>
-      <small>
-       High Point Central High School
-      </small>
-     </div>
-    </div>
-    <div aria-label="Current school time" id="clock">
-    </div>
-   </div>
-  </header>
-  <main>
-   <nav aria-label="Bus Tracker sections" class="tabs">
-    <button data-tab="staff" type="button">
-     Staff Logging Panel
-    </button>
-    <button aria-current="page" class="active" data-tab="admin" type="button">
-     Principal Portal
-    </button>
-    <button data-tab="reports" type="button">
-     Reports
-    </button>
-   </nav>
-   <div class="panel">
-    <iframe allow="clipboard-write" class="frame" id="portal" referrerpolicy="strict-origin-when-cross-origin" title="High Point Central Principal Portal">
-    </iframe>
-    <div class="fallback" id="fallback">
-     If this panel doesn't load,
-     <a id="direct" rel="noopener noreferrer" target="_blank">
-      open this section directly
-     </a>
-     . Some browsers block embedded Google Apps Script pages.
-    </div>
-   </div>
-   <p class="notice">
-    Live operations &middot; School settings, arrivals, calendar, and reports remain stored in High Point Central's Google Spreadsheet.
-   </p>
-  </main>
-  <footer>
-   High Point Central High School &middot; Bus Tracker
-  </footer>
-  <script>
-   // High Point Central GitHub frontend.
-// Operational actions run in embedded Apps Script portals; no PINs are stored here.
-
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bus Tracker | High Point Central High School</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>.touch{min-height:44px}.panel{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;padding:1.25rem;box-shadow:0 1px 3px #0f172a12}.field{width:100%;border:1px solid #cbd5e1;border-radius:.65rem;padding:.7rem;background:white}.btn{border-radius:.7rem;padding:.7rem 1rem;font-weight:700;min-height:44px;background:#1d4ed8;color:white}.btn:disabled{opacity:.5}.muted{color:#64748b}.pill{display:inline-block;padding:.35rem .6rem;border-radius:.65rem;background:#f1f5f9;font-size:.82rem;margin:.2rem}.hidden{display:none!important}</style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+<header class="bg-white border-b border-slate-200 shadow-sm"><div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center"><div class="flex items-center gap-3"><div class="bg-yellow-100 border border-yellow-300 rounded-xl p-2 text-2xl">🚌</div><div><h1 class="text-lg font-bold">Bus Tracker</h1><p id="school" class="text-xs muted">High Point Central High School</p></div></div><div id="clock" class="text-sm font-bold"></div></div></header>
+<main class="max-w-7xl mx-auto p-4 md:p-7 space-y-5">
+<div class="flex bg-slate-200 rounded-xl p-1 max-w-2xl gap-1"><button data-tab="staff" class="tab flex-1 rounded-lg p-3 bg-white font-semibold text-sm">Staff Logging Panel</button><button data-tab="admin" class="tab flex-1 rounded-lg p-3 font-semibold text-sm">Principal Portal</button><button data-tab="reports" class="tab flex-1 rounded-lg p-3 font-semibold text-sm">Reports</button></div>
+<div id="notice" class="hidden panel" role="status" aria-live="polite"></div>
+<section id="staff" class="space-y-5"><div id="staff-login" class="panel max-w-md mx-auto text-center space-y-4"><div class="text-3xl">🔒</div><h2 class="font-bold text-lg">Staff Verification</h2><p class="muted text-sm">Enter the staff access PIN to log bus arrivals.</p><input id="staff-pin" type="password" class="field text-center" placeholder="Staff PIN" autocomplete="off"><button id="staff-auth" class="btn w-full">Authorize &amp; Enter Logging Panel</button></div><div id="staff-app" class="hidden space-y-5"><div class="panel"><h2 class="font-bold text-lg">Active Bus Check-In</h2><p id="schedule" class="muted text-sm mt-1"></p></div><div id="route-cards" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div></div></section>
+<section id="admin" class="hidden space-y-5"><div id="admin-login" class="panel max-w-md mx-auto text-center space-y-4"><div class="text-3xl">🔒</div><h2 class="font-bold text-lg">Administrator Verification</h2><p class="muted text-sm">Enter the administrator PIN.</p><input id="admin-pin" type="password" class="field text-center" placeholder="Administrator PIN" autocomplete="off"><button id="admin-auth" class="btn w-full">Authorize &amp; Enter Principal Portal</button></div><div id="admin-app" class="hidden space-y-5"><div class="flex flex-wrap justify-between gap-3"><h2 class="text-xl font-bold">Principal Dashboard</h2><button id="refresh-admin" class="btn">Refresh Dashboard</button></div><div id="metrics" class="grid grid-cols-2 lg:grid-cols-5 gap-3"></div><div class="grid lg:grid-cols-3 gap-4"><div class="panel"><h3 class="font-bold text-amber-700">Pending Buses</h3><div id="pending" class="mt-3"></div></div><div class="panel"><h3 class="font-bold text-emerald-700">On-Time Arrivals</h3><div id="ontime" class="mt-3"></div></div><div class="panel"><h3 class="font-bold text-rose-700">Late Arrivals</h3><div id="late" class="mt-3"></div></div></div><div class="panel"><h3 class="font-bold">Substitutes &amp; Flagged Notes</h3><div id="flagged" class="mt-3"></div></div><div class="grid lg:grid-cols-2 gap-4"><div class="panel space-y-3"><div class="flex justify-between items-center"><h3 class="font-bold">Arrival Exceptions</h3><button id="refresh-exceptions" class="btn">Refresh</button></div><div id="exceptions" class="space-y-3"></div></div><div class="panel space-y-3"><div class="flex justify-between items-center"><h3 class="font-bold">Delay &amp; Closure Calendar</h3><button id="refresh-calendar" class="btn">Refresh</button></div><div id="calendar" class="space-y-2"></div><form id="calendar-form" class="space-y-2"><label class="text-sm font-semibold">Date<input id="calendar-date" type="date" required class="field"></label><label class="text-sm font-semibold">Schedule<select id="calendar-type" class="field"><option>School Closure</option><option>1-Hour Delay</option><option>2-Hour Delay</option><option>3-Hour Delay</option></select></label><label class="text-sm font-semibold">Notes<input id="calendar-notes" class="field" maxlength="500"></label><button class="btn" type="submit">Save Schedule</button></form></div></div></div></section>
+<section id="reports" class="hidden space-y-5"><div id="reports-login" class="panel max-w-md mx-auto text-center space-y-4"><div class="text-3xl">📊</div><h2 class="font-bold text-lg">Reporting Access</h2><p class="muted text-sm">Sign in through the Principal Portal to access reports.</p><button id="go-admin" class="btn w-full">Go to Administrator Login</button></div><div id="reports-app" class="hidden space-y-5"><div class="panel flex flex-wrap justify-between items-end gap-3"><div><h2 class="font-bold text-xl">Instructional Impact Reporting</h2><p class="muted text-sm">School-specific thresholds from Google Sheets</p></div><div class="flex gap-2 items-end"><label class="text-sm font-semibold">Choose week<input id="report-date" type="date" class="field"></label><button id="refresh-reports" class="btn">View Reports</button></div></div><div id="report-summary" class="grid md:grid-cols-2 gap-4"></div><div class="panel overflow-x-auto"><h3 class="font-bold mb-3">Route-Level Details</h3><div id="report-routes"></div></div><div id="report-warning" class="text-sm muted"></div></div></section>
+<footer class="text-xs muted text-center pb-4">High Point Central High School · Bus Tracker</footer>
+</main>
+<script>
 'use strict';
 const API='https://script.google.com/macros/s/AKfycbzbMTtSBCZ3aSp1Id6kJjUUH0BtRxP8MJIMyyAYPKBp5B04IW29F6ZiSHieVovGvtHSjg/exec';
-const names={staff:'Staff Logging Panel',admin:'Principal Portal',reports:'Reports'};
-const frame=document.getElementById('portal'), fallback=document.getElementById('fallback'), direct=document.getElementById('direct');
-function activate(tab){if(!names[tab])tab='admin';document.querySelectorAll('[data-tab]').forEach(b=>{let active=b.dataset.tab===tab;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});const dest=API+'?action='+encodeURIComponent(tab);frame.title='High Point Central '+names[tab];frame.src=dest;direct.href=dest;fallback.style.display='block';try{history.replaceState(null,'','#'+tab)}catch(e){}}
-document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.tab)));
-window.addEventListener('hashchange',()=>activate(location.hash.slice(1)));
-function clock(){const now=new Date();document.getElementById('clock').textContent=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(now)}clock();setInterval(clock,30000);activate(location.hash.slice(1)||'admin');
-  </script>
- </body>
-</html>
-
+const $=id=>document.getElementById(id);
+const state={config:null,staffToken:'',adminToken:'',arrivals:[]};
+const requests=new Map();
+function notice(message,error=false){const n=$('notice');n.textContent=message;n.classList.remove('hidden');n.style.borderColor=error?'#fca5a5':'#93c5fd';}
+function safe(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function transport(params){return new Promise((resolve,reject)=>{const requestId=crypto.randomUUID();const iframe=document.createElement('iframe');iframe.name='bt_'+requestId;iframe.style.display='none';const form=document.createElement('form');form.method='POST';form.action=API;form.target=iframe.name;form.style.display='none';const fields={...params,requestId};Object.entries(fields).forEach(([name,value])=>{const input=document.createElement('input');input.type='hidden';input.name=name;input.value=String(value??'');form.appendChild(input);});document.body.append(iframe,form);const cleanup=()=>{requests.delete(requestId);form.remove();iframe.remove();};const timer=setTimeout(()=>{cleanup();reject(new Error('The Apps Script response timed out. Check deployment permissions or browser iframe restrictions.'));},25000);requests.set(requestId,{resolve,reject,timer,cleanup});form.submit();});}
+window.addEventListener('message',event=>{if(!/^https:\/\/([a-z0-9-]+\.)*googleusercontent\.com$/.test(event.origin)&&event.origin!=='https://script.google.com')return;const msg=event.data;if(!msg||msg.type!=='BT_HPC_REPLY'||!requests.has(msg.requestId))return;const pending=requests.get(msg.requestId);clearTimeout(pending.timer);pending.cleanup();if(msg.result?.ok)pending.resolve(msg.result.data);else pending.reject(new Error(msg.result?.error||'Operation failed'));});
+async function call(action,params={}){return transport({action,...params});}
+function bootstrap(){const cb='hpcBootstrap';const script=document.createElement('script');window[cb]=data=>{if(!data.success){notice(data.error||'Could not load school settings',true);return;}state.config=data;$('school').textContent=data.school;$('schedule').textContent=`${data.schedule.type} · On time through ${data.schedule.onTimeCutoff||'N/A'} · High impact from ${data.schedule.highImpactBegins||'N/A'}`;renderRoutes();script.remove();};script.src=API+'?action=bootstrap&callback='+cb+'&_='+Date.now();script.onerror=()=>notice('Could not load school configuration.',true);document.head.appendChild(script);}
+function showTab(tab){['staff','admin','reports'].forEach(id=>$(id).classList.toggle('hidden',id!==tab));document.querySelectorAll('.tab').forEach(btn=>{btn.classList.toggle('bg-white',btn.dataset.tab===tab);btn.classList.toggle('text-blue-700',btn.dataset.tab===tab);});if(tab==='reports'&&state.adminToken){$('reports-login').classList.add('hidden');$('reports-app').classList.remove('hidden');}}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+function renderRoutes(){const c=$('route-cards');c.innerHTML='';if(!state.config)return;const closed=state.config.schedule.closed;state.config.routes.forEach(r=>{const done=state.arrivals.find(a=>String(a.routeId)===String(r.id));const card=document.createElement('form');card.className='panel space-y-3';card.innerHTML=`<div class="flex justify-between"><h3 class="font-bold">${safe(r.displayName)}</h3><span class="text-sm ${done?'text-emerald-700':'text-amber-700'}">${done?'Arrived':'Pending'}</span></div><label class="block text-sm font-semibold">Arrival time<input class="field mt-1" type="time" name="arrivalTime" required></label><button type="button" class="btn now">Use Current Time</button><label class="block text-sm font-semibold">Substitute bus (optional)<input class="field mt-1" name="substituteFleetUnit" maxlength="50"></label><label class="block text-sm font-semibold">Staff notes (optional)<textarea class="field mt-1" name="notes" maxlength="1000"></textarea></label><button type="submit" class="btn w-full">${done?'Already Recorded':'Save Arrival'}</button>`;card.querySelector('.now').onclick=()=>{const d=new Date();card.elements.arrivalTime.value=[d.getHours(),d.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');};const submit=card.querySelector('[type=submit]');submit.disabled=Boolean(done||closed);card.onsubmit=async e=>{e.preventDefault();submit.disabled=true;try{const data=await call('submit',{token:state.staffToken,routeId:r.id,arrivalTime:card.elements.arrivalTime.value,substituteFleetUnit:card.elements.substituteFleetUnit.value,notes:card.elements.notes.value});notice(`${data.routeName} saved at ${data.arrivalTime}.`);await refreshStaff();}catch(err){notice(err.message,true);submit.disabled=false;}};c.appendChild(card);});}
+async function refreshStaff(){if(!state.staffToken)return;const data=await call('staffStatus',{token:state.staffToken});state.arrivals=data.arrivals||[];renderRoutes();}
+$('staff-auth').onclick=async()=>{const btn=$('staff-auth');btn.disabled=true;try{const data=await call('staffLogin',{pin:$('staff-pin').value});state.staffToken=data.token;$('staff-pin').value='';$('staff-login').classList.add('hidden');$('staff-app').classList.remove('hidden');await refreshStaff();notice('Staff access granted.');}catch(err){notice(err.message,true);}finally{btn.disabled=false;}};
+$('admin-auth').onclick=async()=>{const btn=$('admin-auth');btn.disabled=true;try{const data=await call('adminLogin',{pin:$('admin-pin').value});state.adminToken=data.token;$('admin-pin').value='';$('admin-login').classList.add('hidden');$('admin-app').classList.remove('hidden');$('reports-login').classList.add('hidden');$('reports-app').classList.remove('hidden');notice('Administrator access granted.');await Promise.allSettled([refreshAdmin(),refreshExceptions(),refreshCalendar()]);}catch(err){notice(err.message,true);}finally{btn.disabled=false;}};
+function pills(target,items){$(target).innerHTML=items?.length?items.map(a=>`<span class="pill">${safe(a.displayName||a.routeName||a.routeId||a.name||a)}</span>`).join(''):'<span class="muted text-sm">None</span>';}
+async function refreshAdmin(){try{const d=await call('dashboard',{token:state.adminToken});const t=d.totals||{};const metrics=[['Total Submissions',t.submissions],['Pending Buses',t.pending],['On-Time Arrivals',t.onTime],['Substituted Buses',t.substitutes],['Flagged Notes',t.flagged]];$('metrics').innerHTML=metrics.map(([label,val])=>`<div class="panel"><p class="muted text-xs font-bold uppercase">${label}</p><p class="text-3xl font-black mt-2">${safe(val??0)}</p></div>`).join('');pills('pending',d.pending);pills('ontime',d.onTime);pills('late',d.late);pills('flagged',[...(d.substitutes||[]),...(d.flagged||[])]);}catch(e){notice(e.message,true);}}
+async function refreshExceptions(){try{const d=await call('exceptions',{token:state.adminToken});const list=(d.exceptions||[]).filter(x=>!/^resolved|^excluded/i.test(x.resolutionStatus||''));$('exceptions').innerHTML=list.length?'':'<p class="muted text-sm">No unresolved exceptions.</p>';list.slice(0,40).forEach(x=>{const form=document.createElement('form');form.className='border-b pb-3 space-y-2';form.innerHTML=`<p class="text-sm font-semibold">${safe(x.date)} · Bus ${safe(x.routeId)} · ${safe(x.exceptionStatus)}</p><input name="verifiedTime" type="time" class="field" aria-label="Verified arrival time"><input name="notes" class="field" required maxlength="2000" placeholder="Administrator resolution notes"><button class="btn" type="submit">Resolve Exception</button>`;form.onsubmit=async e=>{e.preventDefault();try{await call('resolveException',{token:state.adminToken,exceptionId:x.exceptionId,verifiedTime:form.elements.verifiedTime.value,notes:form.elements.notes.value});notice('Exception updated.');refreshExceptions();}catch(err){notice(err.message,true);}};$('exceptions').appendChild(form);});}catch(e){notice(e.message,true);}}
+async function refreshCalendar(){try{const d=await call('calendar',{token:state.adminToken});const rows=Array.isArray(d)?d:(d.dates||d.entries||d.calendar||[]);$('calendar').innerHTML=Array.isArray(rows)?rows.slice(0,30).map(x=>`<p class="text-sm border-b pb-2">${safe(x.date||x.dateKey)} · ${safe(x.type||x.scheduleType)}</p>`).join(''):'<p class="muted text-sm">Calendar loaded.</p>';}catch(e){notice(e.message,true);}}
+$('calendar-form').onsubmit=async e=>{e.preventDefault();try{await call('calendarSave',{token:state.adminToken,date:$('calendar-date').value,type:$('calendar-type').value,notes:$('calendar-notes').value});notice('Calendar saved.');refreshCalendar();}catch(err){notice(err.message,true);}};
+function summaryCard(label,d){if(!d||typeof d!=='object')return '';return `<div class="panel"><h3 class="font-bold mb-3">${label}</h3><div class="grid grid-cols-2 gap-3">${Object.entries(d).filter(([k,v])=>typeof v==='number'||typeof v==='string').slice(0,12).map(([k,v])=>`<div><div class="text-xs muted">${safe(k.replace(/([A-Z])/g,' $1'))}</div><div class="font-bold">${safe(v)}</div></div>`).join('')}</div></div>`;}
+async function refreshReports(){try{const d=await call('report',{token:state.adminToken,date:$('report-date').value});$('report-summary').innerHTML=summaryCard('School Year-to-Date',d.ytd)+summaryCard('Selected Week',d.weekly);const routes=d.weekly?.routes||d.ytd?.routes||[];$('report-routes').innerHTML=routes.length?`<table class="w-full text-sm"><thead><tr><th class="text-left p-2">Route</th><th class="text-right p-2">On-Time %</th><th class="text-right p-2">Minutes Missed</th><th class="text-right p-2">Late Days</th></tr></thead><tbody>${routes.map(r=>`<tr class="border-t"><td class="p-2">${safe(r.route||r.routeId)}</td><td class="p-2 text-right">${safe(Math.round((r.onTimePct||0)*100))}%</td><td class="p-2 text-right">${safe(r.potentialMissedPerStudent||0)}</td><td class="p-2 text-right">${safe(r.lateDays||0)}</td></tr>`).join('')}</tbody></table>`:'<p class="muted">No route detail for the selected week.</p>';$('report-warning').textContent=d.warning||'';}catch(e){notice(e.message,true);}}
+$('refresh-admin').onclick=refreshAdmin;$('refresh-exceptions').onclick=refreshExceptions;$('refresh-calendar').onclick=refreshCalendar;$('refresh-reports').onclick=refreshReports;$('go-admin').onclick=()=>showTab('admin');
+$('report-date').value=new Date().toISOString().slice(0,10);setInterval(()=>{$('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit'});},1000);bootstrap();
+</script>
+</body></html>
