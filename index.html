@@ -29,7 +29,7 @@
     </div>
 </header>
 
-<div role="status" class="bg-amber-50 border-b border-amber-200 text-amber-900 text-sm font-semibold text-center px-4 py-3">LIVE SCHOOL SETTINGS (read-only). Staff check-ins and administrator actions remain in the existing Apps Script portal.</div>
+<div role="status" class="bg-amber-50 border-b border-amber-200 text-amber-900 text-sm font-semibold text-center px-4 py-3">LIVE SCHOOL SETTINGS. Use the live portal links to log arrivals, administer the tracker, and view reports.</div>
 <div id="connection-status" role="status" class="text-sm text-center bg-blue-50 border-b border-blue-200 text-blue-900 px-4 py-3">Waiting for live school configuration…</div>
 <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col space-y-6">
     <div id="notification-toast" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl z-50">
@@ -53,18 +53,15 @@
 <div id="live-route-list" class="bg-white border border-slate-200 rounded-xl p-5 text-sm"><strong>Active routes:</strong> Loading from Google Sheets…</div>
 <div id="live-thresholds" class="bg-white border border-slate-200 rounded-xl p-5 text-sm">Loading arrival thresholds…</div>
     <section id="view-logging" class="hidden space-y-6">
-        <div id="staff-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl text-center space-y-5 my-8">
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto text-blue-600">🔒</div>
-            <div>
-                <h3 class="text-lg font-bold text-slate-900">Staff Verification</h3>
-                <p class="text-xs text-slate-500 mt-1">Staff access will be enabled after the secure backend is connected.</p>
-            </div>
-            <div class="space-y-2">
-                <input type="password" id="staff-pin" placeholder="Enter Staff Password" class="w-full text-center border border-slate-300 rounded-xl py-3 px-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest font-mono" >
-                <p id="staff-auth-error" class="text-xs text-red-600 hidden font-medium">Incorrect staff credentials. Please try again.</p>
-            </div>
-            <button disabled title="Unavailable until secure backend connection is tested"  class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-md touch-target">Authorize & Enter Logging Panel</button>
+        <div id="staff-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-xl mx-auto shadow-sm text-center space-y-4 my-8">
+            <div class="text-3xl" aria-hidden="true">🚌</div>
+            <h3 class="text-lg font-bold text-slate-900">Open Live Staff Logging</h3>
+            <p class="text-sm text-slate-600">Record bus arrivals, substitutes, and notes in the existing live system.</p>
+            <p class="text-xs text-amber-800">The GitHub page currently displays public school configuration only. Secure operational functions remain in Apps Script.</p>
+            <a href="https://script.google.com/macros/s/AKfycbzbMTtSBCZ3aSp1Id6kJjUUH0BtRxP8MJIMyyAYPKBp5B04IW29F6ZiSHieVovGvtHSjg/exec?action=staff" target="_blank" rel="noopener noreferrer" class="inline-block bg-blue-600 text-white font-semibold rounded-xl px-6 py-3 hover:bg-blue-700">Open Live Staff Logging ↗</a>
         </div>
+
+        
 
         <div id="staff-logging-content" class="hidden space-y-6">
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -82,18 +79,15 @@
     </section>
 
     <section id="view-review" class="space-y-6">
-        <div id="principal-auth-wall" class="hidden bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl text-center space-y-5 my-8">
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto text-blue-600">🔒</div>
-            <div>
-                <h3 class="text-lg font-bold text-slate-900">Administrator Verification</h3>
-                <p class="text-xs text-slate-500 mt-1">Administrator access will be enabled after the secure backend is connected.</p>
-            </div>
-            <div class="space-y-2">
-                <input type="password" id="admin-pin" placeholder="Enter Admin Password" class="w-full text-center border border-slate-300 rounded-xl py-3 px-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest font-mono">
-                <p id="auth-error" class="text-xs text-red-600 hidden font-medium">Incorrect administrative credentials. Please try again.</p>
-            </div>
-            <button disabled title="Unavailable until secure backend connection is tested"  class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-md touch-target">Authorize & Enter Panel</button>
+        <div id="principal-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-xl mx-auto shadow-sm text-center space-y-4 my-8">
+            <div class="text-3xl" aria-hidden="true">🚌</div>
+            <h3 class="text-lg font-bold text-slate-900">Open Live Principal Portal</h3>
+            <p class="text-sm text-slate-600">Sign in to view live arrivals, manage calendars, and review exceptions.</p>
+            <p class="text-xs text-amber-800">The GitHub page currently displays public school configuration only. Secure operational functions remain in Apps Script.</p>
+            <a href="https://script.google.com/macros/s/AKfycbzbMTtSBCZ3aSp1Id6kJjUUH0BtRxP8MJIMyyAYPKBp5B04IW29F6ZiSHieVovGvtHSjg/exec?action=admin" target="_blank" rel="noopener noreferrer" class="inline-block bg-blue-600 text-white font-semibold rounded-xl px-6 py-3 hover:bg-blue-700">Open Live Principal Portal ↗</a>
         </div>
+
+        
 
         <div id="principal-dashboard-content" class="space-y-6">
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -174,18 +168,15 @@
     </section>
 
     <section id="view-reports" class="hidden space-y-6">
-        <div id="reports-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl text-center space-y-5 my-8">
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto text-blue-600">📊</div>
-            <div>
-                <h3 class="text-lg font-bold text-slate-900">Reporting Access</h3>
-                <p class="text-xs text-slate-500 mt-1">Reports will be enabled after the secure backend is connected.</p>
-            </div>
-            <div class="space-y-2">
-                <input type="password" id="reports-pin" placeholder="Enter Admin Password" class="w-full text-center border border-slate-300 rounded-xl py-3 px-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest font-mono" >
-                <p id="reports-auth-error" class="text-xs text-red-600 hidden font-medium">Incorrect administrative credentials. Please try again.</p>
-            </div>
-            <button disabled title="Unavailable until secure backend connection is tested"  class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-md touch-target">Authorize & View Reports</button>
+        <div id="reports-auth-wall" class="bg-white border border-slate-200 rounded-2xl p-8 max-w-xl mx-auto shadow-sm text-center space-y-4 my-8">
+            <div class="text-3xl" aria-hidden="true">🚌</div>
+            <h3 class="text-lg font-bold text-slate-900">Open Live Reports</h3>
+            <p class="text-sm text-slate-600">View live reporting in the existing protected reporting portal.</p>
+            <p class="text-xs text-amber-800">The GitHub page currently displays public school configuration only. Secure operational functions remain in Apps Script.</p>
+            <a href="https://script.google.com/macros/s/AKfycbzbMTtSBCZ3aSp1Id6kJjUUH0BtRxP8MJIMyyAYPKBp5B04IW29F6ZiSHieVovGvtHSjg/exec?action=reports" target="_blank" rel="noopener noreferrer" class="inline-block bg-blue-600 text-white font-semibold rounded-xl px-6 py-3 hover:bg-blue-700">Open Live Reports ↗</a>
         </div>
+
+        
 
         <div id="reports-dashboard-content" class="hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -334,7 +325,7 @@
 
 <script>
 "use strict";
-// Visual preview. No PINs, backend URLs, test route data, or operational writes.
+// Read-only GitHub dashboard. Operational actions open the existing Apps Script web app.
 function switchTab(tab) {
   for (const name of ["logging", "review", "reports"]) {
     document.getElementById("view-" + name).classList.toggle("hidden", name !== tab);
